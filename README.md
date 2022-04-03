@@ -1,16 +1,11 @@
 # mecanum_agv
 ## 1.创建工作空间并初始化
 ```bash
-mkdir -p xxx_ws/src
-cd xxx_ws
+git clone https://github.com/causehhc/mecanum_agv.git
+cd mecanum_agv
 catkin_make
 ```
-## 2.get
+## 2.run testNode
 ```bash
-cd src
-git clone https://github.com/causehhc/mecanum_agv.git
+roslaunch sim_gazebo room_world.launch
 ```
-mv ./mecanum_agv/* .
-mv ./mecanum_agv/.[^.]* .
-rm -rf ./mecanum_agv
-## 3.set
