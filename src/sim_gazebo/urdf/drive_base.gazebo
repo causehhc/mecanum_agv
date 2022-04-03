@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<robot name="drive_base" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="drive_base">
+        <gazebo>
+            <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+                <robotNamespace>$(arg car_namespace)/$(arg car_name)</robotNamespace>
+                
+                <commandTopic>cmd_vel</commandTopic>
+                <odometryTopic>odom</odometryTopic>
+                <odometryFrame>odom</odometryFrame>
+                <odometryRate>20.0</odometryRate>
+                <robotBaseFrame>base_link</robotBaseFrame>
+            </plugin>
+        </gazebo>
+    </xacro:macro>
+</robot>

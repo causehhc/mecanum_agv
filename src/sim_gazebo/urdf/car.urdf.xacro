@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<robot name="smart_car_v0" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- define name -->
+    <xacro:arg name="car_namespace"   default="sim" />
+    <xacro:arg name="car_name"   default="smallCar" />
+
+    <!-- load model -->
+    <xacro:include filename="$(find sim_gazebo)/urdf/sub_base.urdf.xacro" />
+    <xacro:sub_base/>
+    <xacro:include filename="$(find sim_gazebo)/urdf/sub_cam.urdf.xacro" />
+    <xacro:sub_cam/>
+    <xacro:include filename="$(find sim_gazebo)/urdf/sub_lidar.urdf.xacro" />
+    <xacro:sub_lidar/>
+
+    <!-- install model -->
+    <xacro:property name="cam_x" value="0.1" />
+    <xacro:property name="cam_y" value="0" />
+    <xacro:property name="cam_z" value="0.02" />
+    <xacro:property name="lidar_x" value="-0.06" />
+    <xacro:property name="lidar_y" value="0" />
+    <xacro:property name="lidar_z" value="0.1" />
+
+    <link name="base_footprint"/>
+    <joint name="base_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="base_footprint" />
+    </joint>
+    <joint name="joint_base_cam" type="fixed">
+        <origin xyz="${cam_x} ${cam_y} ${cam_z}" rpy="0 0 0" />
+        <parent link="base_link"/>
+        <child link="cam_link" />
+    </joint>
+    <joint name="joint_base_lidar" type="fixed">
+        <origin xyz="${lidar_x} ${lidar_y} ${lidar_z}" rpy="0 0 0" />
+        <parent link="base_link"/>
+        <child link="lidar_link"/>
+    </joint>
+
+    <!-- load func -->
+    <xacro:include filename="$(find sim_gazebo)/urdf/drive_base.gazebo" />
+    <xacro:drive_base/>
+    <xacro:include filename="$(find sim_gazebo)/urdf/drive_cam.gazebo" />
+    <xacro:drive_cam/>
+    <xacro:include filename="$(find sim_gazebo)/urdf/drive_lidar.gazebo" />
+    <xacro:drive_lidar/>
+</robot>
