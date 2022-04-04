@@ -29,7 +29,6 @@ def image_scaling(data, scale):
                 param = length_incremental / display_length
                 # frame[int(row / param)][int(col / param)] = wtf
                 frame[int(col / param)][int(row / param)] = wtf
-
     else:
         for row in range(0, display_length):
             for col in range(0, display_length):

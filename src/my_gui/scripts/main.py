@@ -1,3 +1,6 @@
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QImage, QPixmap
+
 from designer.untitled import Ui_MainWindow
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import sys
@@ -5,6 +8,7 @@ import sys
 from interface.remote import RemoteInterface
 from interface.lidar import LidarInterface
 from interface.camera import CameraInterface
+from interface.map import MapInterface
 
 import rospy
 
@@ -14,15 +18,31 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         self.setupUi(self)
 
-        self.remoteNode = RemoteInterface('/sim/smallCar/cmd_vel')
-        self.LidarNode = LidarInterface('2')
-        self.CameraNode = CameraInterface('3')
+        self.camera = CameraInterface("/sim/smallCar/camera/image_raw/compressed")
+        self.lidar = LidarInterface("/sim/smallCar/laser/scan")
+        self.map = MapInterface("/map", "/slam_out_pose")
 
-        self.pushButton.pressed.connect(self.wtf)
+        self.label_cam.setScaledContents(False)
+        self.label_lidar.setScaledContents(False)
+        self.label_map.setScaledContents(False)
 
-    def wtf(self):
-        ret = self.remoteNode.move_cmd_send([0, 0, 0, 0])
-        self.label.setText("{}".format(ret))
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self.play)
+        self._timer.start(100)
+
+    def play(self):
+        def convertFrame(frame):
+            height, width = frame.shape[:2]
+            frame = QImage(frame, width, height, QImage.Format_RGB888)
+            frame = QPixmap.fromImage(frame)
+            return frame
+
+        try:
+            self.label_cam.setPixmap(convertFrame(self.camera.get_frame_qt()))
+            self.label_lidar.setPixmap(convertFrame(self.lidar.get_frame_qt()))
+            self.label_map.setPixmap(convertFrame(self.map.get_frame_qt()))
+        except TypeError:
+            print('No Frame')
 
 
 def shutdown():

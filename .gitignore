@@ -4,3 +4,4 @@
 /.vscode
 /.catkin_workspace
 /src/CMakeLists.txt
+/src/my_gui/scripts/.idea
