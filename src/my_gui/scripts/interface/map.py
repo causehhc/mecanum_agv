@@ -56,6 +56,7 @@ class MapInterface:
     def __init__(self, topic_name1, topic_name2):
         self.map = rospy.Subscriber(topic_name1, OccupancyGrid, self.map_callback, queue_size=1)
         self.pose = rospy.Subscriber(topic_name2, PoseStamped, self.pose_callback, queue_size=1)
+        self.pose_pos = (0, 0)
         self.frame = np.zeros((600, 600, 3), np.uint8)
         self.frame_t = self.frame.copy()
         self.SCALE = 5
@@ -76,10 +77,11 @@ class MapInterface:
         y += origin_center_point
         x /= (origin_center_point / display_center_point)
         y /= (origin_center_point / display_center_point)
+        self.pose_pos = (x, y)
 
         self.frame_t = self.frame.copy()
-        # cv2.circle(frame_t, (int(x), int(y)), 2, (255, 255, 0))
-        cv2.circle(self.frame_t, (int(y), int(x)), 2, (255, 255, 0))
+        # cv2.circle(frame_t, (int(x), int(y)), 2, (255, 0, 255))
+        cv2.circle(self.frame_t, (int(y), int(x)), 2, (255, 0, 0))
 
     def get_frame_qt(self):
         return cv2.cvtColor(self.frame_t, cv2.COLOR_BGR2RGB)
