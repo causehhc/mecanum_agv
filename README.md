@@ -27,3 +27,5 @@ roslaunch sim_gazebo room_world.launch
 `roslaunch rplidar_ros hector_mapping_demo.launch`
 ### 6.It's time to get some realShit
 `roslaunch rplidar_ros hector_mapping_real.launch`
+
+pip install opencv-python==4.3.0.38 -i https://pypi.tuna.tsinghua.edu.cn/simple

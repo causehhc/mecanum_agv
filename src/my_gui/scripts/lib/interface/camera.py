@@ -19,9 +19,6 @@ class CameraInterface:
         now_size = (int(origin_size[1] * param), int(origin_size[0] * param))
         self.frame = cv2.resize(frame, now_size)
 
-    def get_frame_qt(self):
-        return cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
-
 
 def main():
     rospy.init_node('cam_listener')

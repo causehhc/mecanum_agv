@@ -29,9 +29,6 @@ class LidarInterface:
             cv2.circle(frame, (300, 300), 2, (255, 255, 0))
         self.frame = frame
 
-    def get_frame_qt(self):
-        return cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
-
 
 def main():
     rospy.init_node('lidar_listener')

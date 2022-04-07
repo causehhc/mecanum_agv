@@ -6,15 +6,13 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt
 import sys
 
-from interface.remote import RemoteInterface
-from interface.lidar import LidarInterface
-from interface.camera import CameraInterface
-from interface.map import MapInterface
-from interface.path import PathInterface
-
-from algorithm.plan.astar import astar
+from lib.map.BaseMap import BaseMap
+from lib.map.camMap import CamMap
+from lib.map.lidarMap import LidarMap
 
 import rospy
+
+
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
@@ -22,14 +20,14 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         self.setupUi(self)
 
-        self.camera = CameraInterface("/sim/smallCar/camera/image_raw/compressed")
-        self.lidar = LidarInterface("/sim/smallCar/laser/scan")
-        self.map = MapInterface("/map", "/slam_out_pose")
-        self.path = PathInterface()
+        self.camView = CamMap()
+        self.lidarView = LidarMap()
+        self.mapView = BaseMap()
 
         self.label_cam.setScaledContents(False)
         self.label_lidar.setScaledContents(False)
         self.label_map.setScaledContents(False)
+        self.end = None
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.play)
@@ -37,20 +35,15 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
     def mousePressEvent(self, event):
         if event.buttons() == Qt.LeftButton:
-            label_x = self.label_map.x()
-            label_y = self.label_map.y()
-            mouse_x = event.x()
-            mouse_y = event.y()
-            # real_x = mouse_x - label_x
-            # real_y = mouse_y - label_y
-            real_x = mouse_y - label_y
-            real_y = mouse_x - label_x
-
+            real_x = event.x() - self.label_map.x()
+            real_y = event.y() - self.label_map.y()
             if 0 <= real_x <= 600 and 0 <= real_y <= 600:
-                # self.path.find_path(self.map.frame, self.map.pose_pos, (real_x, real_y))
-                # self.path.creat_path_img()
-                # TODO
-                print(self.map.pose_pos, (real_x, real_y))
+                self.end = (real_x, real_y)
+            else:
+                self.end = None
+            event.accept()
+        elif event.buttons() == Qt.RightButton:
+            self.end = None
             event.accept()
 
     def play(self):
@@ -59,11 +52,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             frame = QImage(frame, width, height, QImage.Format_RGB888)
             frame = QPixmap.fromImage(frame)
             return frame
-
         try:
-            self.label_cam.setPixmap(convertFrame(self.camera.get_frame_qt()))
-            self.label_lidar.setPixmap(convertFrame(self.lidar.get_frame_qt()))
-            self.label_map.setPixmap(convertFrame(self.map.get_frame_qt()))
+            self.label_cam.setPixmap(convertFrame(self.camView.update()))
+            self.label_lidar.setPixmap(convertFrame(self.lidarView.update()))
+            self.label_map.setPixmap(convertFrame(self.mapView.update(self.end)))
         except TypeError:
             print('No Frame')
 
