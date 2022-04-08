@@ -59,8 +59,8 @@ def map_callback(data):
 
 
 def pose_callback(data):
-    x = data.pose.position.x
-    y = data.pose.position.y
+    x = data.pose.pos.x
+    y = data.pose.pos.y
     display_center_point = 300
     origin_center_point = 1024
     pixel_distance_param = 20*SCALE

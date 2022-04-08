@@ -13,8 +13,6 @@ from lib.map.lidarMap import LidarMap
 import rospy
 
 
-
-
 class MyMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -38,7 +36,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             real_x = event.x() - self.label_map.x()
             real_y = event.y() - self.label_map.y()
             if 0 <= real_x <= 600 and 0 <= real_y <= 600:
-                self.end = (real_x, real_y)
+                self.end = (real_y, real_x)
+                # print((self.mapView.pose.x, self.mapView.pose.y), (real_x, real_y))
+                # print(self.mapView.map.bitmap[self.mapView.pose.x][self.mapView.pose.y], self.mapView.map.bitmap[real_x][real_y])
             else:
                 self.end = None
             event.accept()

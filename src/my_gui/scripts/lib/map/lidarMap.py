@@ -1,4 +1,6 @@
 from lib.interface.lidar import LidarInterface
+import cv2
+import numpy as np
 
 
 class LidarMap:

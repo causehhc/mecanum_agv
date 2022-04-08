@@ -1,4 +1,6 @@
 from lib.interface.camera import CameraInterface
+import cv2
+import numpy as np
 
 
 class CamMap:

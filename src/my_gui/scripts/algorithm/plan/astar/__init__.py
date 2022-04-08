@@ -1,96 +1,109 @@
-class Node():
-    """A node class for A* Pathfinding"""
+import time
 
+
+class Node:
     def __init__(self, parent=None, position=None):
         self.parent = parent
-        self.position = position
+        self.pos = position
 
         self.g = 0
         self.h = 0
         self.f = 0
 
     def __eq__(self, other):
-        return self.position == other.position
+        return self.pos == other.pos
 
 
-def astar(maze, start, end):
-    """Returns a list of tuples as a path from the given start to the given end in the given maze"""
+class Analyzer:
+    def __init__(self):
+        self.path_list = []
+        self.proc_list = []
 
-    # Create start and end node
-    start_node = Node(None, start)
-    start_node.g = start_node.h = start_node.f = 0
-    end_node = Node(None, end)
-    end_node.g = end_node.h = end_node.f = 0
-
-    # Initialize both open and closed list
-    open_list = []
-    closed_list = []
-
-    # Add the start node
-    open_list.append(start_node)
-
-    # Loop until you find the end
-    while len(open_list) > 0:
-
-        # Get the current node
+    def get_node(self, open_list):
         current_node = open_list[0]
         current_index = 0
         for index, item in enumerate(open_list):
             if item.f < current_node.f:
                 current_node = item
                 current_index = index
+        return current_node, current_index
 
-        # Pop current off open list, add to closed list
-        open_list.pop(current_index)
-        closed_list.append(current_node)
+    def is_out_range(self, maze, node_position):
+        if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (
+                len(maze[len(maze) - 1]) - 1) or node_position[1] < 0:
+            return True
+        return False
 
-        # Found the goal
-        if current_node == end_node:
-            path = []
-            current = current_node
-            while current is not None:
-                path.append(current.position)
-                current = current.parent
-            return path[::-1] # Return reversed path
+    def is_dewalkable(self, maze, node_position, PATH):
+        if maze[node_position[0]][node_position[1]] != PATH:
+            return True
+        return False
 
-        # Generate children
-        children = []
-        for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+    def astar(self, maze, start, end, PATH):
+        # Create start and end node
+        start_node = Node(None, start)
+        start_node.g = start_node.h = start_node.f = 0
+        end_node = Node(None, end)
+        end_node.g = end_node.h = end_node.f = 0
 
-            # Get node position
-            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+        # Initialize both open and closed list
+        open_list = []
+        closed_list = []
 
-            # Make sure within range
-            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
-                continue
+        # Add the start node
+        open_list.append(start_node)
 
-            # Make sure walkable terrain
-            if maze[node_position[0]][node_position[1]] != 0:
-                continue
+        # Loop until you find the end
+        tmp = None
+        while len(open_list) > 0:
+            print(len(open_list))
 
-            # Create new node
-            new_node = Node(current_node, node_position)
+            # Get the current node
+            current_node, current_index = self.get_node(open_list)
+            # Pop current off open list, add to closed list
+            open_list.pop(current_index)
+            closed_list.append(current_node)
 
-            # Append
-            children.append(new_node)
+            # Found the goal
+            if current_node == end_node:
+                current = current_node
+                while current is not None:
+                    self.path_list.append(current.pos)
+                    current = current.parent
+                return True  # Return reversed path
 
-        # Loop through children
-        for child in children:
+            # Orientation detection
+            for new_pos in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]:  # Adjacent squares
+                # Get node position
+                node_pos = (current_node.pos[0] + new_pos[0], current_node.pos[1] + new_pos[1])
+                # Create new node
+                new_node = Node(current_node, node_pos)
 
-            # Child is on the closed list
-            for closed_child in closed_list:
-                if child == closed_child:
+                # Make sure within range
+                if self.is_out_range(maze, node_pos):
                     continue
 
-            # Create the f, g, and h values
-            child.g = current_node.g + 1
-            child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
-            child.f = child.g + child.h
-
-            # Child is already in the open list
-            for open_node in open_list:
-                if child == open_node and child.g > open_node.g:
+                #  Make sure walkable terrain
+                if self.is_dewalkable(maze, node_pos, PATH):
                     continue
 
-            # Add the child to the open list
-            open_list.append(child)
+                # Child is on the closed list
+                if new_node in closed_list:
+                    continue
+
+                # Create the f, g, and h values
+                new_node.g = current_node.g + 1
+                new_node.h = ((new_node.pos[0] - end_node.pos[0]) ** 2) + ((new_node.pos[1] - end_node.pos[1]) ** 2)
+                new_node.f = new_node.g + new_node.h
+
+                # Child is already in the open list
+                if new_node in open_list:
+                    idx = open_list.index(new_node)
+                    if new_node.g > open_list[idx].g:
+                        continue
+
+                # Add the child to the open list
+                open_list.append(new_node)
+                self.proc_list.append(node_pos)
+        print('Unreachable!')
+        return False
