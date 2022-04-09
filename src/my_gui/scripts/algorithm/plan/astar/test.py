@@ -169,6 +169,21 @@ class MiniMap:
                             continue
                     # 如果在closeset中出现或该点为障碍物则跳过判断
                     if (xNew, yNew) not in closeset and self.points[xNew][yNew].state != PointState.BARRIER.value:
+                        # pNew.g = pMin.g + (14 if isCorner else 10)
+                        # pNew.f = pNew.g + 10 * (abs(x2 - xNew) + abs(y2 - yNew))
+                        # pNew.father = pMin
+                        # if (xNew, yNew) in openset:
+                        #     if ((14 if isCorner else 10) + pMin.g) < pNew.g:
+                        #         continue
+                        # else:
+                        #     pNew.state = PointState.TRAVERSED.value
+                        # self.canva.itemconfig(pNew.rectangle, fill="blue")
+                        # if temp is not None:
+                        #     self.canva.itemconfig(temp, fill="yellow")
+                        # temp = pNew.rectangle
+                        # heapq.heappush(openlist, pNew)
+                        # openset.add((xNew, yNew))
+
                         # 如果在openset中
                         if (xNew, yNew) in openset:
                             # 如果通过起点到pMin再到pNew的代价比起点到pNew的代价小，则更新pNew的代价，将pMin设置为pNew的父节点
@@ -184,8 +199,10 @@ class MiniMap:
                             pNew.f = pNew.g + 10 * (abs(x2 - xNew) + abs(y2 - yNew))
                             pNew.father = pMin
                             pNew.state = PointState.TRAVERSED.value
+
                             self.canva.itemconfig(pNew.rectangle, fill="blue")
                             if temp is not None:
+                                self.canva.create_text(xNew* self.size+10, yNew* self.size+10, text="{}".format(int(pNew.f/10)), font=("Purisa", 10))
                                 self.canva.itemconfig(temp, fill="yellow")
                             temp = pNew.rectangle
                             # 将这个点加入openlist
@@ -212,4 +229,4 @@ class MiniMap:
 
 if __name__ == '__main__':
     # 参数为行数，列数，方格尺寸,起点坐标，终点坐标，延迟时间
-    demo = MiniMap(25, 30, 20, (0, 0), (29, 24), 0.02)
+    demo = MiniMap(25, 30, 20, (0, 0), (29, 24), 0.1)

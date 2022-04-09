@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 from tkinter import *
 import _thread
@@ -6,8 +7,6 @@ import time
 from matplotlib import pyplot as plt
 
 from algorithm.plan.astar import Analyzer
-
-from algorithm.plan.astar.BezierPath import Bezier
 
 robot_radius = 5
 
@@ -29,15 +28,27 @@ class Visual:
 
         self.root = Tk()
         self.root.title("navigation")
-        self.row = len(self.runner.costmap)
-        self.col = len(self.runner.costmap[0])
-        self.canva = Canvas(self.root, width=self.col, height=self.row)
-        for row in range(self.row):
-            for col in range(self.col):
+        self.canva = Canvas(self.root, width=len(self.runner.costmap), height=len(self.runner.costmap[0]))
+        # self.draw_background(1)
+        self.canva.bind("<Button-1>", self.startFunc)
+        self.canva.pack(side=TOP, expand=YES, fill=BOTH)
+
+        self.runner.astar(self.start, self.end)
+
+        self.root.mainloop()
+
+    def startFunc(self, event):
+        # _thread.start_new_thread(self.runner.astar, (self.start, self.end))
+        # _thread.start_new_thread(self.runner.astar, (self.end, self.start))
+        _thread.start_new_thread(self.draw_process, (1,))
+
+    def draw_background(self, haha=1):
+        for row in range(len(self.runner.costmap)):
+            for col in range(len(self.runner.costmap[0])):
                 ret = self.runner.costmap[int(row)][int(col)]
                 x = col
                 y = row
-                if ret == PATH:
+                if ret == self.PATH:
                     self.canva.create_rectangle(x, y, x, y, outline="white")
                 elif ret == 3:
                     self.canva.create_rectangle(x, y, x, y, outline="blue")
@@ -45,36 +56,29 @@ class Visual:
                     self.canva.create_rectangle(x, y, x, y, outline="grey")
                 elif ret == 2:
                     self.canva.create_rectangle(x, y, x, y, outline="black")
-
         self.canva.create_rectangle(
-            start[1] - robot_radius / 2,
-            start[0] - robot_radius / 2,
-            start[1] + robot_radius / 2,
-            start[0] + robot_radius / 2,
+            self.start[1] - robot_radius / 2,
+            self.start[0] - robot_radius / 2,
+            self.start[1] + robot_radius / 2,
+            self.start[0] + robot_radius / 2,
             outline="black",
             fill="red"
         )
         self.canva.create_rectangle(
-            end[1] - robot_radius / 2,
-            end[0] - robot_radius / 2,
-            end[1] + robot_radius / 2,
-            end[0] + robot_radius / 2,
+            self.end[1] - robot_radius / 2,
+            self.end[0] - robot_radius / 2,
+            self.end[1] + robot_radius / 2,
+            self.end[0] + robot_radius / 2,
             outline="black",
             fill="red"
         )
 
-        self.canva.bind("<Button-1>", self.startFunc)
-
-        self.canva.pack(side=TOP, expand=YES, fill=BOTH)
-        self.root.mainloop()
-
-    def draw(self, hahah):
+    def draw_process(self, haha=1):
         tmp_x = 0
         tmp_y = 0
-        points = []
-
-        while len(self.proc_list):
-            node = self.proc_list.pop(0)
+        proc_list = copy.deepcopy(self.proc_list)
+        while len(proc_list):
+            node = proc_list.pop(0)
             self.canva.create_rectangle(
                 node[1] - robot_radius / 2,
                 node[0] - robot_radius / 2,
@@ -93,10 +97,11 @@ class Visual:
             )
             tmp_x = node[0]
             tmp_y = node[1]
+            time.sleep(0.1)
 
-        while len(self.path_list):
-            node = self.path_list.pop(0)
-            points.append([float(node[1]), float(node[0])])
+        path_list = copy.deepcopy(self.path_list)
+        while len(path_list):
+            node = path_list.pop(0)
             self.canva.create_rectangle(
                 node[1] - robot_radius / 2,
                 node[0] - robot_radius / 2,
@@ -106,27 +111,18 @@ class Visual:
                 fill="green"
             )
 
-        if len(points) != 0:
-            points = np.array(points)
-            bz = Bezier(points, 1000)
-            matpi = bz.getBezierPoints(1)
-            nb = list(matpi)
-            while len(nb):
-                node = nb.pop(0)
+        if haha == 2:
+            new_list = self.runner.bezier(self.path_list)
+            while len(new_list):
+                node = new_list.pop(0)
                 self.canva.create_rectangle(
-                    int(node[0]),
                     int(node[1]),
                     int(node[0]),
                     int(node[1]),
+                    int(node[0]),
                     outline="red"
                 )
 
-        time.sleep(0.02)
-
-    def startFunc(self, event):
-        _thread.start_new_thread(self.runner.astar, (self.start, self.end))
-        # _thread.start_new_thread(self.runner.astar, (self.maze, self.end, self.start, self.PATH))
-        _thread.start_new_thread(self.draw, (1,))
 
 
 def demo1():
@@ -149,25 +145,26 @@ def demo1():
 
 
 def demo2():
-    maze = np.fromfile("/home/hhc/Desktop/ros/bishe_ws/src/my_gui/scripts/algorithm/plan/astar/maze.bin", dtype=np.int8)
+    # maze = np.fromfile("/home/hhc/Desktop/ros/bishe_ws/src/my_gui/scripts/algorithm/plan/astar/maze.bin", dtype=np.int8)
+    maze = np.fromfile("./maze.bin", dtype=np.int8)
     maze.shape = 600, 600, 1
 
     start = (310, 220)
-    end = (310, 300)
+    end = (310, 410)
 
     return maze, start, end, 1
 
 
 def main():
     maze, start, end, path = demo2()
-    # plt.imshow(maze)
-    # plt.show()
 
-    sb = Visual(maze, start, end, path)
+    Visual(maze, start, end, path)
 
-    # tt = Analyzer()
-    # tt.astar(maze, start, end, path)
+    # tt = Analyzer(maze, path, robot_radius)
+    # tt.astar(start, end)
     # print(tt.path_list)
+    # print(tt.proc_list)
+    # # print(tt.bezier(tt.path_list))
 
 
 if __name__ == '__main__':
