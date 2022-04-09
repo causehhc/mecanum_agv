@@ -8,5 +8,5 @@
     <arg name="world_name" value="$(find sim_gazebo)/worlds/room_world"/>
   </include>
   <param name="robot_description" command="$(find xacro)/xacro '$(find sim_gazebo)/urdf/car.urdf.xacro'" />
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-unpause -urdf -model smallCar -param robot_description" />
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-unpause -urdf -model car -param robot_description" />
 </launch>

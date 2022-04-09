@@ -5,3 +5,5 @@
 /.catkin_workspace
 /src/CMakeLists.txt
 /src/my_gui/scripts/.idea
+__pycache__/
+/src/navigation/

@@ -37,7 +37,7 @@ class RobotInterface:
 
 def main():
     rospy.init_node('remoteCar')
-    small_car = RobotInterface('/sim/smallCar/cmd_vel')
+    small_car = RobotInterface('cmd_vel')
     rate = rospy.Rate(50)
     while not rospy.is_shutdown():
         sta = small_car.run()

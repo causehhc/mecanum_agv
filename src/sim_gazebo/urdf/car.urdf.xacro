@@ -2,8 +2,10 @@
 
 <robot name="smart_car_v0" xmlns:xacro="http://www.ros.org/wiki/xacro">
     <!-- define name -->
-    <xacro:arg name="car_namespace"   default="sim" />
-    <xacro:arg name="car_name"   default="smallCar" />
+    <!-- <xacro:arg name="car_namespace"   default="sim" />
+    <xacro:arg name="car_name"   default="smallCar" /> -->
+    <xacro:arg name="car_namespace"   default="" />
+    <xacro:arg name="car_name"   default="" />
 
     <!-- load model -->
     <xacro:include filename="$(find sim_gazebo)/urdf/sub_base.urdf.xacro" />

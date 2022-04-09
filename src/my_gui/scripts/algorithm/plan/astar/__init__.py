@@ -1,4 +1,23 @@
 import time
+import numpy as np
+import copy
+import math
+
+
+def dilate_bin_image(bin_image):
+    kernel = np.ones(shape=(13, 13))
+    kernel_size = kernel.shape[0]
+    bin_image = np.array(bin_image)
+    if (kernel_size%2 == 0) or kernel_size<1:
+        raise ValueError("kernel size must be odd and bigger than 1")
+    if (bin_image.max() != 1) or (bin_image.min() != 0):
+        raise ValueError("input image's pixel value must be 0 or 1")
+    d_image = np.zeros(shape=bin_image.shape)
+    center_move = int((kernel_size-1)/2)
+    for i in range(center_move, bin_image.shape[0]-kernel_size+1):
+        for j in range(center_move, bin_image.shape[1]-kernel_size+1):
+            d_image[i, j] = np.min(bin_image[i-center_move:i+center_move,j-center_move:j+center_move])
+    return d_image
 
 
 class Node:
@@ -15,11 +34,32 @@ class Node:
 
 
 class Analyzer:
-    def __init__(self):
+    def __init__(self, world, path_val, robot_radius):
         self.path_list = []
         self.proc_list = []
 
-    def get_node(self, open_list):
+        self.path_val = path_val
+        self.robot_radius= robot_radius
+        self.costmap = copy.deepcopy(world)
+
+        self.generate_costmap(world)
+
+
+    def generate_costmap(self, world):
+        tmp = copy.deepcopy(world)
+        for row in range(len(tmp)):
+            for col in range(len(tmp[0])):
+                if tmp[row][col] != self.path_val:
+                    tmp[row][col] = 0
+        dilate_map = dilate_bin_image(tmp)
+
+        for row in range(len(dilate_map)):
+            for col in range(len(dilate_map[0])):
+                if dilate_map[row][col] != tmp[row][col]:
+                    self.costmap[row][col] = 3
+
+
+    def _get_node(self, open_list):
         current_node = open_list[0]
         current_index = 0
         for index, item in enumerate(open_list):
@@ -28,18 +68,31 @@ class Analyzer:
                 current_index = index
         return current_node, current_index
 
-    def is_out_range(self, maze, node_position):
-        if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (
-                len(maze[len(maze) - 1]) - 1) or node_position[1] < 0:
+    def _is_out_range(self, node_position):
+        if node_position[0] > (len(self.costmap) - self.robot_radius-1) \
+                or node_position[0] < self.robot_radius \
+                or node_position[1] > (len(self.costmap[len(self.costmap) -self.robot_radius- 1])-self.robot_radius - 1)\
+                or node_position[1] < self.robot_radius:
             return True
         return False
 
-    def is_dewalkable(self, maze, node_position, PATH):
-        if maze[node_position[0]][node_position[1]] != PATH:
+    def _is_dewalkable(self, node_position):
+        for row in range(node_position[0]-self.robot_radius, node_position[0]+self.robot_radius):
+            for col in range(node_position[1] - self.robot_radius, node_position[1] + self.robot_radius):
+                if self.costmap[row][col] != self.path_val:
+                    return False
+        return True
+    def _is_goal(self, current_node, end_node):
+        if current_node is None:
+            return False
+        t_x = current_node.pos[0] - end_node.pos[0]
+        t_y = current_node.pos[1] - end_node.pos[1]
+        dis = math.sqrt((t_x ** 2) + (t_y ** 2))
+        if dis < self.robot_radius:
             return True
         return False
 
-    def astar(self, maze, start, end, PATH):
+    def astar(self, start, end):
         # Create start and end node
         start_node = Node(None, start)
         start_node.g = start_node.h = start_node.f = 0
@@ -54,37 +107,46 @@ class Analyzer:
         open_list.append(start_node)
 
         # Loop until you find the end
-        tmp = None
         while len(open_list) > 0:
-            print(len(open_list))
+            # print(len(open_list))
+            # print(len(closed_list))
 
             # Get the current node
-            current_node, current_index = self.get_node(open_list)
+            current_node, current_index = self._get_node(open_list)
             # Pop current off open list, add to closed list
             open_list.pop(current_index)
             closed_list.append(current_node)
 
             # Found the goal
-            if current_node == end_node:
+            if self._is_goal(current_node, end_node):
                 current = current_node
                 while current is not None:
                     self.path_list.append(current.pos)
                     current = current.parent
                 return True  # Return reversed path
 
-            # Orientation detection
-            for new_pos in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]:  # Adjacent squares
+            # Orientation detection & Adjacent squares
+            for new_pos in [
+                (0, -self.robot_radius),
+                (0, self.robot_radius),
+                (-self.robot_radius, 0),
+                (self.robot_radius, 0),
+                (-self.robot_radius, -self.robot_radius),
+                (-self.robot_radius, self.robot_radius),
+                (self.robot_radius, -self.robot_radius),
+                (self.robot_radius, self.robot_radius)
+            ]:
                 # Get node position
                 node_pos = (current_node.pos[0] + new_pos[0], current_node.pos[1] + new_pos[1])
                 # Create new node
                 new_node = Node(current_node, node_pos)
 
                 # Make sure within range
-                if self.is_out_range(maze, node_pos):
+                if self._is_out_range(node_pos):
                     continue
 
                 #  Make sure walkable terrain
-                if self.is_dewalkable(maze, node_pos, PATH):
+                if not self._is_dewalkable(node_pos):
                     continue
 
                 # Child is on the closed list
