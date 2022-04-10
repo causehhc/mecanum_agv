@@ -10,8 +10,8 @@ class PoseInterface:
         self.y = 0
 
     def pose_callback(self, data):
-        x = data.pose.pos.x
-        y = data.pose.pos.y
+        x = data.pose.position.x
+        y = data.pose.position.y
         display_center_point = 300
         origin_center_point = 1024
         pixel_distance_param = 20 * self.SCALE

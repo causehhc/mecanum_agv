@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import math
 from tkinter import *
 import enum
 import heapq
@@ -98,15 +99,21 @@ class MiniMap:
         设置障碍/移除障碍
         通过鼠标点击位置更改对应方格的状态
         """
-        x = int((event.x + 3) / self.size)
-        y = int((event.y + 3) / self.size)
-        if x < self.col and y < self.row:
-            if (self.points[x][y].state == PointState.BARRIER.value):
-                self.points[x][y].state = PointState.UNUSED.value
-                self.canva.itemconfig(self.points[x][y].rectangle, fill=self.points[x][y].state)
-            else:
-                self.points[x][y].state = PointState.BARRIER.value
-                self.canva.itemconfig(self.points[x][y].rectangle, fill=self.points[x][y].state)
+        for tt in range(4, 21):
+            self.points[tt][18].state = PointState.BARRIER.value
+            self.canva.itemconfig(self.points[tt][18].rectangle, fill=self.points[tt][18].state)
+        for tt in range(6, 19):
+            self.points[20][tt].state = PointState.BARRIER.value
+            self.canva.itemconfig(self.points[20][tt].rectangle, fill=self.points[20][tt].state)
+        # x = int((event.x + 3) / self.size)
+        # y = int((event.y + 3) / self.size)
+        # if x < self.col and y < self.row:
+        #     if (self.points[x][y].state == PointState.BARRIER.value):
+        #         self.points[x][y].state = PointState.UNUSED.value
+        #         self.canva.itemconfig(self.points[x][y].rectangle, fill=self.points[x][y].state)
+        #     else:
+        #         self.points[x][y].state = PointState.BARRIER.value
+        #         self.canva.itemconfig(self.points[x][y].rectangle, fill=self.points[x][y].state)
 
     def cleanMap(self, event):
         """
@@ -167,50 +174,33 @@ class MiniMap:
                         # 如果将要判断的斜角方向被阻挡则跳过（如将要判断东南方向，若东方或南方被阻挡，则跳过）
                         if self.points[xNew][pMin.y].state == PointState.BARRIER.value or self.points[pMin.x][yNew].state == PointState.BARRIER.value:
                             continue
-                    # 如果在closeset中出现或该点为障碍物则跳过判断
-                    if (xNew, yNew) not in closeset and self.points[xNew][yNew].state != PointState.BARRIER.value:
-                        # pNew.g = pMin.g + (14 if isCorner else 10)
-                        # pNew.f = pNew.g + 10 * (abs(x2 - xNew) + abs(y2 - yNew))
-                        # pNew.father = pMin
-                        # if (xNew, yNew) in openset:
-                        #     if ((14 if isCorner else 10) + pMin.g) < pNew.g:
-                        #         continue
-                        # else:
-                        #     pNew.state = PointState.TRAVERSED.value
-                        # self.canva.itemconfig(pNew.rectangle, fill="blue")
-                        # if temp is not None:
-                        #     self.canva.itemconfig(temp, fill="yellow")
-                        # temp = pNew.rectangle
-                        # heapq.heappush(openlist, pNew)
-                        # openset.add((xNew, yNew))
 
-                        # 如果在openset中
-                        if (xNew, yNew) in openset:
-                            # 如果通过起点到pMin再到pNew的代价比起点到pNew的代价小，则更新pNew的代价，将pMin设置为pNew的父节点
-                            if ((14 if isCorner else 10) + pMin.g) < pNew.g:
-                                # 如果在角落，则pMin到pNew的代价为14，否则为10
-                                pNew.g = pMin.g + (14 if isCorner else 10)
-                                pNew.f = pNew.g + 10 * (abs(x2 - xNew) + abs(y2 - yNew))
-                                pNew.father = pMin
-                        # 如果不在openset中，则代表这个点第一次被访问，直接将pMin设置为pNew的父节点
-                        else:
-                            # 如果在角落，则pMin到pNew的代价为14，否则为10
+                    if self.points[xNew][yNew].state == PointState.BARRIER.value:
+                        continue
+
+                    if (xNew, yNew) in closeset:
+                        continue
+
+                    if (xNew, yNew) in openset:
+                        if ((14 if isCorner else 10) + pMin.g) < pNew.g:
                             pNew.g = pMin.g + (14 if isCorner else 10)
-                            pNew.f = pNew.g + 10 * (abs(x2 - xNew) + abs(y2 - yNew))
+                            h = 10 * (abs(x2 - xNew) + abs(y2 - yNew))
+                            pNew.f = pNew.g + h
                             pNew.father = pMin
-                            pNew.state = PointState.TRAVERSED.value
+                    else:
+                        pNew.g = pMin.g + (14 if isCorner else 10)
+                        h = 10 * (abs(x2 - xNew) + abs(y2 - yNew))
+                        pNew.f = pNew.g + h
+                        pNew.father = pMin
+                        heapq.heappush(openlist, pNew)
+                        openset.add((xNew, yNew))
+                        self.canva.itemconfig(pNew.rectangle, fill="blue")
+                        if temp is not None:
+                            self.canva.itemconfig(temp, fill="yellow")
+                        temp = pNew.rectangle
 
-                            self.canva.itemconfig(pNew.rectangle, fill="blue")
-                            if temp is not None:
-                                self.canva.create_text(xNew* self.size+10, yNew* self.size+10, text="{}".format(int(pNew.f/10)), font=("Purisa", 10))
-                                self.canva.itemconfig(temp, fill="yellow")
-                            temp = pNew.rectangle
-                            # 将这个点加入openlist
-                            heapq.heappush(openlist, pNew)
-                            openset.add((xNew, yNew))
             # 检测是否寻路完成
             if (x2, y2) in openset:
-                print('sb')
                 pNext = self.points[x2][y2]
                 pNext.state = PointState.PATH.value
                 self.canva.itemconfig(pNext.rectangle, fill=PointState.PATH.value)
@@ -229,4 +219,4 @@ class MiniMap:
 
 if __name__ == '__main__':
     # 参数为行数，列数，方格尺寸,起点坐标，终点坐标，延迟时间
-    demo = MiniMap(25, 30, 20, (0, 0), (29, 24), 0.1)
+    demo = MiniMap(25, 30, 20, (0, 0), (29, 24), 0.02)

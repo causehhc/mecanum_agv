@@ -1,4 +1,6 @@
 # mecanum_agv
+## WARING: DEVELOPING
+![](./picture/gui.png)
 ## INIT
 ### 1.创建工作空间并初始化
 ```
@@ -28,6 +30,6 @@ roslaunch sim_gazebo room_world.launch
 ### 6.It's time to get some realShit
 `roslaunch rplidar_ros hector_mapping_real.launch`
 ### 7.NAV
-`roslaunch navigation test_amcl.launch`
+~~`roslaunch navigation test_amcl.launch`~~
 
 pip install opencv-python==4.3.0.38 -i https://pypi.tuna.tsinghua.edu.cn/simple

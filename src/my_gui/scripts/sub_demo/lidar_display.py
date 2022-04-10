@@ -49,7 +49,7 @@ def callback(data):
 # 所以需要换为1，只接收最新的一个消息，其他的都丢了不管~
 def laser_listener():
     rospy.init_node('laser_listener', anonymous=True)
-    rospy.Subscriber("/sim/smallCar/laser/scan", LaserScan, callback, queue_size=1)
+    rospy.Subscriber("/scan", LaserScan, callback, queue_size=1)
     rospy.spin()
 
 

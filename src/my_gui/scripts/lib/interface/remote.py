@@ -17,7 +17,7 @@ class RemoteInterface:
 
 def main():
     rospy.init_node('hahaha')
-    small_car = RemoteInterface('/sim/smallCar/cmd_vel')
+    small_car = RemoteInterface('/cmd_vel')
     rate = rospy.Rate(50)
     while not rospy.is_shutdown():
         ret = small_car.move_cmd_send([0, 0, 0, 0])

@@ -5,15 +5,20 @@ from geometry_msgs.msg import PoseStamped
 import cv2
 import numpy as np
 
-from algorithm.plan.astar import astar
+from algorithm.plan.astar import Analyzer
 
 
 class PathInterface:
-    def __init__(self):
-        pass
+    def __init__(self, maze, robot_radius):
+        self.maze = maze
+        self.PATH = 1
+        self.robot_radius = robot_radius
+        self.runner = None
 
-    def find_path(self, maze, start, end):
-        path = []
-        print(start, end, maze[start[0]][start[1]], maze[end[0]][end[1]])
-        path = astar(maze, start, end)
-        return path
+    def find_map(self):
+        self.runner = Analyzer(self.maze, self.PATH, self.robot_radius)
+        return self.runner.layer_list
+
+    def find_path(self, start, end):
+        self.runner.astar(start, end)
+        return self.runner.path_list, self.runner.proc_list

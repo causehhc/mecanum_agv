@@ -20,20 +20,19 @@ class Visual:
         self.end = end
         self.PATH = PATH
 
-        self.path_list = self.runner.path_list
-        self.proc_list = self.runner.proc_list
-
         # plt.imshow(self.runner.costmap)
         # plt.show()
 
         self.root = Tk()
         self.root.title("navigation")
         self.canva = Canvas(self.root, width=len(self.runner.costmap), height=len(self.runner.costmap[0]))
-        # self.draw_background(1)
+        self.draw_background(1)
         self.canva.bind("<Button-1>", self.startFunc)
         self.canva.pack(side=TOP, expand=YES, fill=BOTH)
 
         self.runner.astar(self.start, self.end)
+        self.path_list = self.runner.path_list
+        self.proc_list = self.runner.proc_list
 
         self.root.mainloop()
 
@@ -97,7 +96,7 @@ class Visual:
             )
             tmp_x = node[0]
             tmp_y = node[1]
-            time.sleep(0.1)
+            time.sleep(0.02)
 
         path_list = copy.deepcopy(self.path_list)
         while len(path_list):
@@ -164,7 +163,7 @@ def main():
     # tt.astar(start, end)
     # print(tt.path_list)
     # print(tt.proc_list)
-    # # print(tt.bezier(tt.path_list))
+    # print(tt.bezier(tt.path_list))
 
 
 if __name__ == '__main__':
