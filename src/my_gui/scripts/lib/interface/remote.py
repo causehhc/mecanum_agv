@@ -1,5 +1,17 @@
 import rospy
+import keyboard
 from geometry_msgs.msg import Twist
+
+
+def get_state():
+    keys = {'w': 0, 's': 0, 'a': 0, 'd': 0, 'q': 0, 'e': 0, 'p': 0}
+    for i in keys:
+        keys[i] = keyboard.is_pressed(i)
+    x = keys['w'] - keys['s']
+    y = keys['a'] - keys['d']
+    z = keys['q'] - keys['e']
+    other = keys['p']
+    return x, y, z, other
 
 
 class RemoteInterface:
@@ -13,6 +25,14 @@ class RemoteInterface:
         cmd.angular.z = move_cmd[2]
         self.pub_move_cmd.publish(cmd)
         return move_cmd[3]
+
+    def run(self, haha=1):
+        rate = rospy.Rate(50)
+        while True:
+            status = get_state()
+            self.move_cmd_send(status)
+            rate.sleep()
+
 
 
 def main():

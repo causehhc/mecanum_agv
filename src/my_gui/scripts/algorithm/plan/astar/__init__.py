@@ -1,13 +1,21 @@
+import time
+
 import numpy as np
+import cv2
 import copy
 import math
 from algorithm.plan.astar.BezierPath import Bezier
 
 
+def cv_show(img):
+    cv2.imshow('', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
 def dilate_bin_image(bin_image):
     kernel = np.ones(shape=(13, 13))
     kernel_size = kernel.shape[0]
-    bin_image = np.array(bin_image)
     if (kernel_size % 2 == 0) or kernel_size < 1:
         raise ValueError("kernel size must be odd and bigger than 1")
     if (bin_image.max() != 1) or (bin_image.min() != 0):
@@ -61,17 +69,23 @@ class Analyzer:
     def _generate_costmap(self, world):
         self.layer_list = []
         tmp = copy.deepcopy(world)
-        for row in range(len(tmp)):
-            for col in range(len(tmp[0])):
-                if tmp[row][col] != self.path_val:
-                    tmp[row][col] = 0
-        dilate_map = dilate_bin_image(tmp)
+        tmp = np.array(tmp)
+        tmp = tmp.astype(np.uint8)
+        tmp.shape = (600, 600)
 
-        for row in range(len(dilate_map)):
-            for col in range(len(dilate_map[0])):
-                if dilate_map[row][col] != tmp[row][col]:
-                    self.layer_list.append((row, col))
-                    self.costmap[row][col] = 3
+        # Binarization
+        tmp = np.where(tmp == self.path_val, tmp, 0)  # tmp[row][col]!=path -> 0
+
+        # black swell
+        dilate_tmp = np.where(tmp != 1, tmp, 255)  # tmp[row][col]==1 -> 255
+        dilate_tmp = cv2.erode(dilate_tmp, np.ones((13, 13), dtype=np.uint8), 1)
+        dilate_tmp = np.where(dilate_tmp != 255, dilate_tmp, 1)  # tmp[row][col]==255 -> 1
+        dilate_map = dilate_tmp
+
+        # Extract Contrast
+        self.layer_list = np.argwhere((dilate_map - tmp) != 0)
+        for item in self.layer_list:
+            self.costmap[item[0]][item[1]] = 3
         return self.layer_list
 
     def _get_node(self, open_list):
@@ -93,11 +107,9 @@ class Analyzer:
         return False
 
     def _is_dewalkable(self, node_position):
-        for row in range(node_position[0] - self.robot_radius, node_position[0] + self.robot_radius):
-            for col in range(node_position[1] - self.robot_radius, node_position[1] + self.robot_radius):
-                if self.costmap[row][col] != self.path_val:
-                    return False
-        return True
+        tmp = self.costmap[node_position[0] - self.robot_radius:node_position[0] + self.robot_radius, node_position[1] - self.robot_radius:node_position[1] + self.robot_radius]
+        aim = ((self.robot_radius*2)**2)*self.path_val
+        return tmp.sum() == aim
 
     def _is_goal(self, current_node, end_node):
         if current_node is None:
@@ -114,25 +126,24 @@ class Analyzer:
         self.proc_list = []
         # Create start and end node
         start_node = Node(None, start)
-        start_node.g = start_node.h = start_node.f = 0
         end_node = Node(None, end)
+        start_node.g = start_node.h = start_node.f = 0
         end_node.g = end_node.h = end_node.f = 0
 
         # Initialize both open and closed list
         open_list = []
-        closed_list = []
+        closed_set = set()
 
         # Add the start node
         open_list.append(start_node)
 
         # Loop until you find the end
         while len(open_list) > 0:
-
             # Get the current node
             current_node, current_index = self._get_node(open_list)
             # Pop current off open list, add to closed list
             open_list.pop(current_index)
-            closed_list.append(current_node)
+            closed_set.add(current_node.pos)
 
             # Found the goal
             if self._is_goal(current_node, end_node):
@@ -155,19 +166,20 @@ class Analyzer:
             ]:
                 node_pos = (current_node.pos[0] + new_pos[0], current_node.pos[1] + new_pos[1])
                 new_node = Node(current_node, node_pos)
-
                 if self._is_out_range(node_pos):  # Make sure within range
                     continue
 
                 if not self._is_dewalkable(node_pos):  # Make sure walkable terrain
                     continue
 
-                if new_node in closed_list:  # Child is on the closed list
+                if new_node.pos in closed_set:  # Child is on the closed list
                     continue
 
                 step_distance = math.sqrt(((new_pos[0]) ** 2) + ((new_pos[1]) ** 2))
                 new_node.g = current_node.g + step_distance
-                new_node.h = math.sqrt(((new_node.pos[0] - end_node.pos[0]) ** 2) + ((new_node.pos[1] - end_node.pos[1]) ** 2))
+                (x1, y1) = new_node.pos
+                (x2, y2) = end_node.pos
+                new_node.h = math.sqrt(((x1-x2)**2) + ((y1-y2)**2))
                 new_node.f = new_node.g + new_node.h
 
                 if new_node in open_list:

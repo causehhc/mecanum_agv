@@ -13,12 +13,22 @@ robot_radius = 5
 
 class Visual:
     def __init__(self, maze, start, end, PATH):
-        self.runner = Analyzer(maze, PATH, robot_radius)
-
         self.maze = maze
         self.start = start
         self.end = end
         self.PATH = PATH
+
+        t1 = time.time()
+        self.runner = Analyzer(maze, PATH, robot_radius)
+        t2 = time.time()
+        print(t2 - t1)
+
+        t1 = time.time()
+        self.runner.astar(self.start, self.end)
+        t2 = time.time()
+        print(t2 - t1)
+        self.path_list = self.runner.path_list
+        self.proc_list = self.runner.proc_list
 
         # plt.imshow(self.runner.costmap)
         # plt.show()
@@ -29,11 +39,6 @@ class Visual:
         self.draw_background(1)
         self.canva.bind("<Button-1>", self.startFunc)
         self.canva.pack(side=TOP, expand=YES, fill=BOTH)
-
-        self.runner.astar(self.start, self.end)
-        self.path_list = self.runner.path_list
-        self.proc_list = self.runner.proc_list
-
         self.root.mainloop()
 
     def startFunc(self, event):
@@ -77,6 +82,7 @@ class Visual:
         tmp_y = 0
         proc_list = copy.deepcopy(self.proc_list)
         while len(proc_list):
+            # time.sleep(0.02)
             node = proc_list.pop(0)
             self.canva.create_rectangle(
                 node[1] - robot_radius / 2,
@@ -96,7 +102,6 @@ class Visual:
             )
             tmp_x = node[0]
             tmp_y = node[1]
-            time.sleep(0.02)
 
         path_list = copy.deepcopy(self.path_list)
         while len(path_list):
@@ -144,12 +149,15 @@ def demo1():
 
 
 def demo2():
-    # maze = np.fromfile("/home/hhc/Desktop/ros/bishe_ws/src/my_gui/scripts/algorithm/plan/astar/maze.bin", dtype=np.int8)
-    maze = np.fromfile("./maze.bin", dtype=np.int8)
+    maze = np.fromfile("/home/hhc/Desktop/ros/bishe_ws/src/my_gui/scripts/algorithm/plan/astar/maze.bin", dtype=np.int8)
+    # maze = np.fromfile("./maze.bin", dtype=np.int8)
     maze.shape = 600, 600, 1
 
-    start = (310, 220)
-    end = (310, 410)
+    start = (400, 110)
+    end = (300, 120)
+    # haoshi
+    start = (400, 110)
+    end = (300, 120)
 
     return maze, start, end, 1
 

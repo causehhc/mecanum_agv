@@ -1,5 +1,6 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
+import math
 
 
 class PoseInterface:
@@ -8,6 +9,13 @@ class PoseInterface:
         self.SCALE = 5
         self.x = 0
         self.y = 0
+        self.yaw = 0
+
+    def quart_to_rpy(self, x, y, z, w):
+        roll = math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y))
+        pitch = math.asin(2 * (w * y - x * z))
+        yaw = math.atan2(2 * (w * z + x * y), 1 - 2 * (z * z + y * y))
+        return roll, pitch, yaw
 
     def pose_callback(self, data):
         x = data.pose.position.x
@@ -25,4 +33,10 @@ class PoseInterface:
 
         self.x = int(x)
         self.y = int(y)
+        _, _, self.yaw = self.quart_to_rpy(
+            data.pose.orientation.x,
+            data.pose.orientation.y,
+            data.pose.orientation.z,
+            data.pose.orientation.w
+        )
 
