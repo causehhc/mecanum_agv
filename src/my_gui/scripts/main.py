@@ -11,6 +11,7 @@ from lib.map.BaseMap import BaseMap
 from lib.map.camMap import CamMap
 from lib.map.lidarMap import LidarMap
 from lib.interface.remote import RemoteInterface
+from algorithm.slam.hector import Hetor_SLAM
 
 import rospy
 import _thread
@@ -23,69 +24,31 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
+
         # print
         self.text_update.connect(self.append_text)
         sys.stdout = self
+
+        self.default_masterUrl = "http://localhost:11311"
+        self.default_ip = "192.168.2.112"
+        self.default_hostname = "ubuntu"
 
         self.remote = RemoteInterface("/cmd_vel")
         self.camView = CamMap()
         self.lidarView = LidarMap()
         self.mapView = BaseMap()
 
-        self.label_cam.setScaledContents(False)
-        self.label_lidar.setScaledContents(False)
-        self.label_map.setScaledContents(False)
-
-        self.pushButton_1.clicked.connect(self.pushButton_1_func)
-        self.pushButton_2.clicked.connect(self.pushButton_2_func)
-        self.pushButton_3.clicked.connect(self.pushButton_3_func)
-        self.pushButton_4.clicked.connect(self.pushButton_4_func)
+        self.has_start_main = None
+        self.sta_remote = None
+        self.sta_work_path = None
+        self.sta_work_aopt = None
+        self.sta_work_bopt = None
+        self.sta_work_move = None
+        self.pushButton_init()
 
         self._timer = QTimer(self)
-        self._timer.timeout.connect(self.play)
-        self._timer.start(100)
-
-    def pushButton_1_func(self):
-        _thread.start_new_thread(self.remote.run, (1,))
-
-    def pushButton_2_func(self):
-        _thread.start_new_thread(self.mapView.get_map, (1,))
-
-    def pushButton_3_func(self):
-        _thread.start_new_thread(self.mapView.get_path, (1,))
-
-    def pushButton_4_func(self):
-        _thread.start_new_thread(self.mapView.get_move, (self.remote, 1, ))
-
-    def mousePressEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            real_x = event.x() - self.groupBox_2.x()
-            real_y = event.y() - self.groupBox_2.y()
-            real_x -= 15
-            real_y -= 40
-            if 0 <= real_x <= 600 and 0 <= real_y <= 600:
-                self.mapView.end = (real_y, real_x)
-            else:
-                self.mapView.end = None
-            print(self.mapView.pose.x, self.mapView.pose.y, self.mapView.end)
-            event.accept()
-        elif event.buttons() == Qt.RightButton:
-            self.mapView.end = None
-            event.accept()
-
-    def play(self):
-        def convertFrame(frame):
-            height, width = frame.shape[:2]
-            frame = QImage(frame, width, height, QImage.Format_RGB888)
-            frame = QPixmap.fromImage(frame)
-            return frame
-
-        self.camView.update()
-        self.lidarView.update()
-        self.mapView.update()
-        self.label_cam.setPixmap(convertFrame(self.camView.returnFrame))
-        self.label_lidar.setPixmap(convertFrame(self.lidarView.returnFrame))
-        self.label_map.setPixmap(convertFrame(self.mapView.returnFrame))
+        self._timer.timeout.connect(self.thread_flashGUI_display)
+        self._timer.start(30)
 
     def write(self, text):
         self.text_update.emit(str(text))
@@ -93,8 +56,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     def flush(self):
         pass
 
-    # ------------------------------
-    # 5.槽函数
     def append_text(self, text):
         cur = self.textBrowser.textCursor()  # Move cursor to end of text
         cur.movePosition(QTextCursor.End)
@@ -105,6 +66,135 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             if sep:  # New line if LF
                 cur.insertBlock()
         self.textBrowser.setTextCursor(cur)  # Update visible cursor
+
+    def mousePressEvent(self, event):
+        if event.buttons() == Qt.LeftButton:
+            real_x = event.x() - self.groupBox_2.x()
+            real_y = event.y() - self.groupBox_2.y()
+            real_x -= 15
+            real_y -= 40
+            if 0 <= real_x <= 600 and 0 <= real_y <= 600:
+                self.mapView.end = (real_y, real_x)
+                self.sta_work_path = True
+                print(self.mapView.pose.x, self.mapView.pose.y, real_y, real_x)
+            else:
+                self.mapView.end = None
+                self.sta_work_path = False
+            event.accept()
+        elif event.buttons() == Qt.RightButton:
+            self.mapView.end = None
+            self.sta_work_path = False
+            event.accept()
+
+    def pushButton_init(self):
+        # def pushButton_():
+        #     pass
+        # self.pushButton_.clicked.connect(pushButton_)
+
+        def pushButton_connect():
+            if self.has_start_main is None:
+                Hetor_SLAM().start()
+                _thread.start_new_thread(self.thread_work, (1,))
+                _thread.start_new_thread(self.thread_remote, (1,))
+                _thread.start_new_thread(self.thread_flashGUI_info, (1,))
+                _thread.start_new_thread(self.thread_flashStatus, (1,))
+                self.has_start_main = True
+            else:
+                print('sb')
+        self.pushButton_connect.clicked.connect(pushButton_connect)
+
+        def pushButton_cancel():
+            print('sb')
+            pass
+        self.pushButton_cancel.clicked.connect(pushButton_cancel)
+
+        def checkBox_remote():
+            sta = self.checkBox_remote.checkState()
+            if sta:
+                self.sta_remote = True
+            else:
+                self.sta_remote = False
+        self.checkBox_remote.clicked.connect(checkBox_remote)
+
+        def pushButton_aopt():
+            self.sta_work_aopt = True
+        self.pushButton_aopt.clicked.connect(pushButton_aopt)
+
+        def pushButton_bopt():
+            self.sta_work_bopt = True
+        self.pushButton_bopt.clicked.connect(pushButton_bopt)
+
+        def pushButton_move():
+            self.sta_work_move = True
+        self.pushButton_move.clicked.connect(pushButton_move)
+
+        def spinBox_sta_radius():
+            val = self.spinBox_sta_radius.value()
+            self.mapView.robot_radius = val
+            self.mapView.path.robot_radius = val
+        self.spinBox_sta_radius.setValue(5)
+        self.spinBox_sta_radius.valueChanged.connect(spinBox_sta_radius)
+
+    def thread_work(self, haha=1):
+        rate = rospy.Rate(50)  # 50ms
+        while True:
+            if self.sta_work_path is True:
+                self.mapView.get_path()
+                self.sta_work_path = False
+
+            if self.sta_work_aopt is True:
+                self.mapView.get_map()
+                self.sta_work_aopt = False
+
+            if self.sta_work_bopt is True:
+                self.mapView.get_bezier()
+                self.sta_work_bopt = False
+
+            if self.sta_work_move is True:
+                self.mapView.get_move(self.remote)
+                self.sta_work_move = False
+
+            rate.sleep()
+
+    def thread_flashStatus(self, haha=1):
+        rate = rospy.Rate(10)  # 1000ms
+        while True:
+            if True:
+                self.label_sta_roscore.setText('online')
+                self.label_sta_gazebo.setText('online')
+                self.label_sta_slam.setText('online')
+                self.label_sta_astar.setText('online')
+                self.label_sta_bezier.setText('online')
+            rate.sleep()
+
+    def thread_remote(self, haha=1):
+        rate = rospy.Rate(50)  # 50ms
+        while True:
+            if self.sta_remote is True:
+                self.remote.run_once()
+            rate.sleep()
+
+    def thread_flashGUI_info(self, haha=1):
+        rate = rospy.Rate(20)  # 50ms
+        while True:
+            self.camView.update()
+            self.lidarView.update()
+            self.mapView.update()
+            rate.sleep()
+
+    def thread_flashGUI_display(self):
+        def convertFrame(frame):
+            height, width = frame.shape[:2]
+            frame = QImage(frame, width, height, QImage.Format_RGB888)
+            frame = QPixmap.fromImage(frame)
+            return frame
+        self.label_cam.setPixmap(convertFrame(self.camView.returnFrame))
+        self.label_lidar.setPixmap(convertFrame(self.lidarView.returnFrame))
+        self.label_map.setPixmap(convertFrame(self.mapView.returnFrame))
+        val = 100
+        if len(self.mapView.pathList)!=0:
+            val = len(self.mapView.pathList)*(100/self.mapView.pathLen)
+        self.progressBar.setValue(100-val)
 
 
 def shutdown():

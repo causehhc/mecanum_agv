@@ -4,7 +4,6 @@ import numpy as np
 import cv2
 import copy
 import math
-from algorithm.plan.astar.BezierPath import Bezier
 
 
 def cv_show(img):
@@ -51,20 +50,6 @@ class Analyzer:
         self.costmap = copy.deepcopy(world)
         self.layer_list = []
         self._generate_costmap(world)
-
-    def bezier(self, path_list):
-        tmp = []
-        for item in path_list:
-            tmp.append([float(item[0]), float(item[1])])
-        points = np.array(tmp)
-        bz = Bezier(points, 1000)
-        matpi = bz.getBezierPoints(1)
-        uniques = np.unique(matpi, axis=0)
-        uniques_list = list(uniques)
-        tmp.clear()
-        for item in uniques_list:
-            tmp.append([int(item[0]), int(item[1])])
-        return tmp
 
     def _generate_costmap(self, world):
         self.layer_list = []

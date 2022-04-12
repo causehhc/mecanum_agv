@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import time
 import rospy
@@ -9,53 +11,119 @@ frame = np.zeros((600, 600, 3), np.uint8)
 SCALE = 5
 
 
-def image_scaling(data, scale):
-    origin_length = data.info.height
-    display_length = 600
-    center_point = origin_length / 2
+import time
 
-    length_start = int(center_point - (origin_length / scale) / 2)
-    length_incremental = int(origin_length / scale)
+import rospy
+from nav_msgs.msg import OccupancyGrid
 
-    if scale < 3.413:
-        for row in range(0, length_incremental):
-            for col in range(0, length_incremental):
-                if data.data[(length_start + row) * origin_length + length_start + col] == -1:
-                    wtf = (166, 166, 166)
-                elif data.data[(length_start + row) * origin_length + length_start + col] == 0:
-                    wtf = (250, 255, 255)
-                else:
-                    wtf = (0, 0, 0)
-                param = length_incremental / display_length
-                # frame[int(row / param)][int(col / param)] = wtf
-                frame[int(col / param)][int(row / param)] = wtf
-    else:
-        for row in range(0, display_length):
-            for col in range(0, display_length):
-                o_x = int(row / (display_length / length_incremental) + length_start)
-                o_y = int(col / (display_length / length_incremental) + length_start)
-                if data.data[o_x * origin_length + o_y] == -1:
-                    wtf = (166, 166, 166)
-                elif data.data[o_x * origin_length + o_y] == 0:
-                    wtf = (250, 255, 255)
-                else:
-                    wtf = (0, 0, 0)
-                # frame[row][col] = wtf
-                frame[col][row] = wtf
+import cv2
+import numpy as np
 
 
-def image_panning(data, x, y):
-    # TODO
-    pass
+class MapInterface:
+    def __init__(self, topic_name, size, scale):
+        self.size = size
+        self.map = rospy.Subscriber(topic_name, OccupancyGrid, self.map_callback, queue_size=1)
+        self.SCALE = scale  # max_resolution: 3.41333
+        self.bitmap = np.zeros((self.size[0], self.size[1], 1), np.uint8)
+        self.frame = np.zeros((self.size[0], self.size[1], 3), np.uint8)
 
+    def image_scaling(self, data, scale):
+        input_len = data.info.height
+        output_len = self.size[0]
+        center_point = input_len / 2
 
-def image_rotation(data, z):
-    # TODO
-    pass
+        len_start = int(center_point - (input_len / scale) / 2)
+        len_incre = int(input_len / scale)
 
+        if scale < 3.413:
+            # TODO
+            for row in range(0, len_incre):
+                for col in range(0, len_incre):
+                    data_index = (len_start + row)+(len_start + col) * input_len
+                    res_row = int(row / (len_incre / output_len))
+                    res_col = int(col / (len_incre / output_len))
+                    if data.data[data_index] == -1:
+                        tmp1 = 0  # UNKNOWN
+                        tmp2 = (166, 166, 166)
+                        self.bitmap[res_row][res_col] = tmp1
+                        self.frame[res_row][res_col] = tmp2
+                    elif data.data[data_index] == 0:
+                        tmp1 = 1  # PATH
+                        tmp2 = (255, 255, 255)
+                        self.bitmap[res_row][res_col] = tmp1
+                        self.frame[res_row][res_col] = tmp2
+                    else:
+                        tmp1 = 2  # WALL
+                        tmp2 = (0, 0, 0)
+                        self.bitmap[res_row][res_col] = tmp1
+                        self.frame[res_row][res_col] = tmp2
+        else:
+            # TODO
+            data_map = np.array(data.data, dtype=np.int16)
+            map_len = int(math.sqrt(len(data_map)))
+            data_map.shape = (map_len, map_len)
+            x1 = int(map_len/2-600/2)
+            x2 = int(map_len/2+600/2)
 
-def map_callback(data):
-    image_scaling(data, SCALE)  # max_resolution: 3.41333
+            # data_map_scl = data_map[x1:x2][x1:x2]
+            data_map_scl = np.zeros((600, 600), dtype=np.int16)
+            t1 = time.time()
+            for row in range(0, 600):
+                for col in range(0, 600):
+                    data_map_scl[row][col] = data_map[x1+row][x1+col]
+            t2 = time.time()
+            print(t2 - t1)
+
+            self.frame = np.expand_dims(data_map_scl, axis=2).repeat(3, axis=2)
+            self.frame = np.where(self.frame != [-1, -1, -1], self.frame, [166, 166, 166])
+            self.frame = np.where(self.frame != [0, 0, 0], self.frame, [255, 255, 255])
+            self.frame = np.where(self.frame != [100, 100, 100], self.frame, [0, 0, 0])
+            self.frame = self.frame.astype(np.uint8)
+
+            # out_put = np.where(data_map_scl != -1, data_map_scl, (166, 166, 166))  # out_put[row][col]==-1 -> (166, 166, 166)
+            # out_put = np.where(data_map_scl != 0, data_map_scl,(255, 255, 255))  # out_put[row][col]==-1 -> (166, 166, 166)
+            # out_put = np.where(data_map_scl ==-1 and data_map_scl ==0, data_map_scl,(0, 0, 0))  # out_put[row][col]==-1 -> (166, 166, 166)
+            # # map_len = cv2.resize(data_map, (600, 600), interpolation=cv2.INTER_CUBIC)
+            # self.frame = out_put
+
+            # for row in range(0, output_len):
+            #     for col in range(0, output_len):
+            #         o_x = int(row / (output_len / len_incre) + len_start)
+            #         o_y = int(col / (output_len / len_incre) + len_start)
+            #         data_index = o_x+o_y*input_len
+            #         if data.data[data_index] == -1:
+            #             tmp1 = 0
+            #             tmp2 = (166, 166, 166)
+            #             self.bitmap[row][col] = tmp1
+            #             self.frame[row][col] = tmp2
+            #         elif data.data[data_index] == 0:
+            #             tmp1 = 1
+            #             tmp2 = (255, 255, 255)
+            #             self.bitmap[row][col] = tmp1
+            #             self.frame[row][col] = tmp2
+            #         else:
+            #             tmp1 = 2
+            #             tmp2 = (0, 0, 0)
+            #             self.bitmap[row][col] = tmp1
+            #             self.frame[row][col] = tmp2
+
+    def image_panning(self, data, x, y):
+        # TODO
+        pass
+
+    def image_rotation(self, data, z):
+        # TODO
+        pass
+
+    def map_callback(self, data):
+        t1 = time.time()
+        self.image_scaling(data, self.SCALE)
+        t2 = time.time()
+        # print(t2-t1)
+        cv2.imshow('frame', self.frame)
+        cv2.waitKey(1)
+
 
 
 def pose_callback(data):
@@ -80,9 +148,10 @@ def pose_callback(data):
 
 
 def main():
+    tt = MapInterface("/map", (600, 600), 5)
     rospy.init_node('map_listener', anonymous=True)
-    rospy.Subscriber("/map", OccupancyGrid, map_callback, queue_size=1)
-    rospy.Subscriber("/slam_out_pose", PoseStamped, pose_callback, queue_size=1)
+    rospy.Subscriber("/map", OccupancyGrid, tt.map_callback, queue_size=1)
+    # rospy.Subscriber("/slam_out_pose", PoseStamped, pose_callback, queue_size=1)
     rospy.spin()
 
 

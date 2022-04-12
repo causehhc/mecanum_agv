@@ -1,6 +1,16 @@
 # mecanum_agv
 ## WARING: DEVELOPING
 ![](./picture/gui.png)
+## Update
+- GUI flash thread
+- GUI启动hector_SLAM子进程(start_launch.py and __init__.py)
+- GUI main_logic
+- 直接导航(坐标变换)
+- pose diaplay
+- opt bezier
+## TODO
+- opt interface_map_speed
+- map_op
 ## INIT
 ### 1.创建工作空间并初始化
 ```

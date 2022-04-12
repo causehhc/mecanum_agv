@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>927</width>
-    <height>959</height>
+    <width>934</width>
+    <height>1021</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,14 +26,14 @@
          <item>
           <widget class="QLabel" name="label_lidar">
            <property name="text">
-            <string>lidar</string>
+            <string>No Signal</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLabel" name="label_cam">
            <property name="text">
-            <string>cam</string>
+            <string>No Signal</string>
            </property>
           </widget>
          </item>
@@ -49,7 +49,7 @@
          <item>
           <widget class="QLabel" name="label_map">
            <property name="text">
-            <string>map</string>
+            <string>No Signal</string>
            </property>
           </widget>
          </item>
@@ -60,42 +60,42 @@
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="pushButton_1">
               <property name="text">
                <string>&lt;</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QPushButton" name="pushButton_2">
               <property name="text">
                <string>^</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_7">
+             <widget class="QPushButton" name="pushButton_3">
               <property name="text">
                <string>v</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_5">
+             <widget class="QPushButton" name="pushButton_4">
               <property name="text">
                <string>&gt;</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_8">
+             <widget class="QPushButton" name="pushButton_5">
               <property name="text">
                <string>+</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_9">
+             <widget class="QPushButton" name="pushButton_6">
               <property name="text">
                <string>-</string>
               </property>
@@ -120,7 +120,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
-             <widget class="QLineEdit" name="lineEdit"/>
+             <widget class="QLineEdit" name="lineEdit_rosmasterurl"/>
             </item>
            </layout>
           </widget>
@@ -132,7 +132,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <item>
-             <widget class="QLineEdit" name="lineEdit_3"/>
+             <widget class="QLineEdit" name="lineEdit_rosip"/>
             </item>
            </layout>
           </widget>
@@ -144,7 +144,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_10">
             <item>
-             <widget class="QLineEdit" name="lineEdit_4"/>
+             <widget class="QLineEdit" name="lineEdit_roshostname"/>
             </item>
            </layout>
           </widget>
@@ -152,14 +152,14 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QPushButton" name="pushButton_14">
+            <widget class="QPushButton" name="pushButton_connect">
              <property name="text">
               <string>Connect</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_15">
+            <widget class="QPushButton" name="pushButton_cancel">
              <property name="text">
               <string>Cancel</string>
              </property>
@@ -174,36 +174,90 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <layout class="QHBoxLayout" name="horizontalLayout_12">
               <item>
-               <widget class="QLabel" name="label">
+               <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>ROS_CORE:</string>
+                 <string>roscore:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_11">
+               <widget class="QLabel" name="label_sta_roscore">
                 <property name="text">
-                 <string>ok</string>
+                 <string>offline</string>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item>
-               <widget class="QLabel" name="label_3">
+               <widget class="QLabel" name="label_9">
                 <property name="text">
-                 <string>Hecter_SLAM:</string>
+                 <string>gazebo:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_12">
+               <widget class="QLabel" name="label_sta_gazebo">
                 <property name="text">
-                 <string>ok</string>
+                 <string>offline</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>SLAM:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_sta_slam">
+                <property name="text">
+                 <string>offline</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Astar:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_sta_astar">
+                <property name="text">
+                 <string>offline</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Bezier:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_sta_bezier">
+                <property name="text">
+                 <string>offline</string>
                 </property>
                </widget>
               </item>
@@ -212,69 +266,20 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
-               <widget class="QLabel" name="label_2">
+               <widget class="QLabel" name="label">
                 <property name="text">
-                 <string>Simulation:</string>
+                 <string>Radius:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_13">
-                <property name="text">
-                 <string>ok</string>
-                </property>
-                <property name="shortcut">
-                 <string/>
-                </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-                <property name="default">
-                 <bool>false</bool>
-                </property>
-                <property name="flat">
-                 <bool>false</bool>
+               <widget class="QSpinBox" name="spinBox_sta_radius">
+                <property name="readOnly">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_6">
-           <property name="title">
-            <string>TRY_THIS_SHIT</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <widget class="QPushButton" name="pushButton_1">
-              <property name="text">
-               <string>Remote</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_2">
-              <property name="text">
-               <string>Layer</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_3">
-              <property name="text">
-               <string>Path</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_4">
-              <property name="text">
-               <string>Move</string>
-              </property>
-             </widget>
             </item>
            </layout>
           </widget>
@@ -289,6 +294,43 @@
              <widget class="QProgressBar" name="progressBar">
               <property name="value">
                <number>24</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_6">
+           <property name="title">
+            <string>TRY_THIS_SHIT</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="checkBox_remote">
+              <property name="text">
+               <string>ArtificialRemote</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_aopt">
+              <property name="text">
+               <string>Astar-opt</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_bopt">
+              <property name="text">
+               <string>Bezier-opt</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_move">
+              <property name="text">
+               <string>Move</string>
               </property>
              </widget>
             </item>
@@ -319,7 +361,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>927</width>
+     <width>934</width>
      <height>23</height>
     </rect>
    </property>

@@ -171,7 +171,6 @@ def main():
     # tt.astar(start, end)
     # print(tt.path_list)
     # print(tt.proc_list)
-    # print(tt.bezier(tt.path_list))
 
 
 if __name__ == '__main__':

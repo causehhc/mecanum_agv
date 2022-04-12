@@ -26,12 +26,16 @@ class RemoteInterface:
         self.pub_move_cmd.publish(cmd)
         return move_cmd[3]
 
+    def run_once(self):
+        status = get_state()
+        self.move_cmd_send(status)
+
     def run(self, haha=1):
         rate = rospy.Rate(50)
         while True:
-            status = get_state()
-            self.move_cmd_send(status)
+            self.run_once()
             rate.sleep()
+
 
 
 
