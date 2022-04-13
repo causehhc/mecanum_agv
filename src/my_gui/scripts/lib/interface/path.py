@@ -9,14 +9,11 @@ from algorithm.plan.Bezier import Bezier
 
 
 class PathInterface:
-    def __init__(self, maze, robot_radius):
-        self.maze = maze
-        self.PATH = 1
-        self.robot_radius = robot_radius
+    def __init__(self):
         self.runner = None
 
-    def find_map(self):
-        self.runner = Analyzer(self.maze, self.PATH, self.robot_radius)
+    def find_map(self, bitmap, path, robot_radius, scale):
+        self.runner = Analyzer(bitmap, path, robot_radius, scale)
         return self.runner.layer_list
 
     def find_path(self, start, end):
@@ -73,6 +70,6 @@ class PathInterface:
         while len(path_list):
             aim_pos = path_list.pop()
             now_pos = (pose.x, pose.y)
-            print("before", aim_pos, now_pos)
+            # print("before", aim_pos, now_pos)
             self.direct_navigation(pose, aim_pos, remote)
-            print("after", aim_pos, now_pos)
+            # print("after", aim_pos, now_pos)

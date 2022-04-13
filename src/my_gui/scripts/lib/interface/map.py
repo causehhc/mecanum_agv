@@ -8,76 +8,92 @@ import numpy as np
 
 
 class MapInterface:
-    def __init__(self, topic_name, size, scale):
+    def __init__(self, topic_name, size, scale, diff):
         self.size = size
+        self.scale = scale
+        self.diff = diff
         self.map = rospy.Subscriber(topic_name, OccupancyGrid, self.map_callback, queue_size=1)
-        self.SCALE = scale  # max_resolution: 3.41333
+        self.data = None
         self.bitmap = np.zeros((self.size[0], self.size[1], 1), np.uint8)
         self.frame = np.zeros((self.size[0], self.size[1], 3), np.uint8)
 
-    def image_scaling(self, data, scale):
-        input_len = data.info.height
-        output_len = self.size[0]
-        center_point = input_len / 2
+    def _get_two_from_oneDim(self, arr1, arr1_rowLen, row1, col1, row2, col2):
+        arr2 = arr1[row1*arr1_rowLen:(row2)*arr1_rowLen]
+        arr2 = np.array(arr2, dtype=np.int16)
+        arr2.shape = (row2-row1, arr1_rowLen)
+        arr2 = arr2[:, col1:col2]
+        return arr2
 
-        len_start = int(center_point - (input_len / scale) / 2)
-        len_incre = int(input_len / scale)
+    def image_transform(self):
+        """
+        :param data: *
+        :return:
+        """
+        if self.data is None:
+            return False
 
-        if scale < 3.413:
-            # TODO
-            for row in range(0, len_incre):
-                for col in range(0, len_incre):
-                    data_index = (len_start + row)+(len_start + col) * input_len
-                    res_row = int(row / (len_incre / output_len))
-                    res_col = int(col / (len_incre / output_len))
-                    if data.data[data_index] == -1:
-                        tmp1 = 0  # UNKNOWN
-                        tmp2 = (166, 166, 166)
-                        self.bitmap[res_row][res_col] = tmp1
-                        self.frame[res_row][res_col] = tmp2
-                    elif data.data[data_index] == 0:
-                        tmp1 = 1  # PATH
-                        tmp2 = (255, 255, 255)
-                        self.bitmap[res_row][res_col] = tmp1
-                        self.frame[res_row][res_col] = tmp2
-                    else:
-                        tmp1 = 2  # WALL
-                        tmp2 = (0, 0, 0)
-                        self.bitmap[res_row][res_col] = tmp1
-                        self.frame[res_row][res_col] = tmp2
-        else:
-            # TODO
-            for row in range(0, output_len):
-                for col in range(0, output_len):
-                    o_x = int(row / (output_len / len_incre) + len_start)
-                    o_y = int(col / (output_len / len_incre) + len_start)
-                    data_index = o_x+o_y*input_len
-                    if data.data[data_index] == -1:
-                        tmp1 = 0
-                        tmp2 = (166, 166, 166)
-                        self.bitmap[row][col] = tmp1
-                        self.frame[row][col] = tmp2
-                    elif data.data[data_index] == 0:
-                        tmp1 = 1
-                        tmp2 = (255, 255, 255)
-                        self.bitmap[row][col] = tmp1
-                        self.frame[row][col] = tmp2
-                    else:
-                        tmp1 = 2
-                        tmp2 = (0, 0, 0)
-                        self.bitmap[row][col] = tmp1
-                        self.frame[row][col] = tmp2
+        data_tmp = self.data.data
+        map_len = self.data.info.height
 
-    def image_panning(self, data, x, y):
-        # TODO
-        pass
+        # slice data
+        row_center = int((map_len / 2) + self.diff[0])
+        col_center = int((map_len / 2) + self.diff[1])
+        if self.scale < 1:
+            self.scale = 1
+        scale_len = int((map_len / self.scale) / 2)
+        if row_center - scale_len < 0:
+            row_center = scale_len
+        elif row_center + scale_len >= map_len:
+            row_center = map_len - scale_len
+        if col_center - scale_len < 0:
+            col_center = scale_len
+        elif col_center + scale_len >= map_len:
+            col_center = map_len - scale_len
+        row1 = row_center - scale_len
+        col1 = col_center - scale_len
+        row2 = row_center + scale_len
+        col2 = col_center + scale_len
+        data_map_slc = self._get_two_from_oneDim(data_tmp, map_len, row1, col1, row2, col2)
 
-    def image_rotation(self, data, z):
-        # TODO
-        pass
+        # change val and type
+        data_map_slc = np.where(data_map_slc != -1, data_map_slc, 166)
+        data_map_slc = data_map_slc.astype(np.uint8)
+
+        # resize
+        data_map_slc = cv2.resize(data_map_slc, (self.size[0], self.size[1]), interpolation=cv2.INTER_NEAREST)
+
+        # change val
+        data_map_slc = np.where(data_map_slc != 0, data_map_slc, 255)
+        data_map_slc = np.where(data_map_slc != 100, data_map_slc, 0)
+
+        # T
+        data_map_slc = data_map_slc.T
+
+        # set bitmap
+        bitmap_tmp = data_map_slc.copy()
+        bitmap_tmp = np.where(bitmap_tmp != 0, bitmap_tmp, 2)
+        bitmap_tmp = np.where(bitmap_tmp != 255, bitmap_tmp, 1)
+        bitmap_tmp = np.where(bitmap_tmp != 166, bitmap_tmp, 0)
+
+        # expand_dims
+        data_map_slc = np.expand_dims(data_map_slc, axis=2).repeat(3, axis=2)
+
+        # res
+        self.frame = data_map_slc
+        self.bitmap = bitmap_tmp
+
+
+    def change_param(self, scale, diff):
+        """
+        :param scale: num
+        :param diff: [v, >]
+        :return:
+        """
+        self.scale += scale
+        self.diff[0] += diff[0]
+        self.diff[1] += diff[1]
 
     def map_callback(self, data):
-        t1 = time.time()
-        self.image_scaling(data, self.SCALE)
-        t2 = time.time()
-        print(t2-t1)
+        self.data = data
+        self.image_transform()
+

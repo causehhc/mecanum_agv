@@ -25,6 +25,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         self.setupUi(self)
 
+        self.robot_radius = 5
+
         # print
         self.text_update.connect(self.append_text)
         sys.stdout = self
@@ -32,6 +34,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.default_masterUrl = "http://localhost:11311"
         self.default_ip = "192.168.2.112"
         self.default_hostname = "ubuntu"
+        self.lineEdit_rosmasterurl.setText(self.default_masterUrl)
+        self.lineEdit_rosip.setText(self.default_ip)
+        self.lineEdit_roshostname.setText(self.default_hostname)
 
         self.remote = RemoteInterface("/cmd_vel")
         self.camView = CamMap()
@@ -76,7 +81,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             if 0 <= real_x <= 600 and 0 <= real_y <= 600:
                 self.mapView.end = (real_y, real_x)
                 self.sta_work_path = True
-                print(self.mapView.pose.x, self.mapView.pose.y, real_y, real_x)
+                # print(self.mapView.pose.x, self.mapView.pose.y, real_y, real_x)
             else:
                 self.mapView.end = None
                 self.sta_work_path = False
@@ -91,6 +96,51 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         #     pass
         # self.pushButton_.clicked.connect(pushButton_)
 
+        def pushButton_1():
+            self.mapView.map.change_param(0, [10, 0])
+            self.mapView.pose.change_param(0, [10, 0])
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+        self.pushButton_1.clicked.connect(pushButton_1)
+
+        def pushButton_2():
+            self.mapView.map.change_param(0, [0, 10])
+            self.mapView.pose.change_param(0, [0, 10])
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+        self.pushButton_2.clicked.connect(pushButton_2)
+
+        def pushButton_3():
+            self.mapView.map.change_param(0, [0, -10])
+            self.mapView.pose.change_param(0, [0, -10])
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+        self.pushButton_3.clicked.connect(pushButton_3)
+
+        def pushButton_4():
+            self.mapView.map.change_param(0, [-10, 0])
+            self.mapView.pose.change_param(0, [-10, 0])
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+        self.pushButton_4.clicked.connect(pushButton_4)
+
+        def pushButton_5():
+            self.mapView.map.change_param(1, [0, 0])
+            self.mapView.pose.change_param(1, [0, 0])
+            self.mapView.view_robot_radius += 1
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+        self.pushButton_5.clicked.connect(pushButton_5)
+
+        def pushButton_6():
+            self.mapView.map.change_param(-1, [0, 0])
+            self.mapView.pose.change_param(-1, [0, 0])
+            if self.mapView.view_robot_radius > 1:
+                self.mapView.view_robot_radius -= 1
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+        self.pushButton_6.clicked.connect(pushButton_6)
+
         def pushButton_connect():
             if self.has_start_main is None:
                 Hetor_SLAM().start()
@@ -100,11 +150,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 _thread.start_new_thread(self.thread_flashStatus, (1,))
                 self.has_start_main = True
             else:
-                print('sb')
+                print('Has connected')
         self.pushButton_connect.clicked.connect(pushButton_connect)
 
         def pushButton_cancel():
-            print('sb')
+            print('TODO')
             pass
         self.pushButton_cancel.clicked.connect(pushButton_cancel)
 
@@ -130,8 +180,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
         def spinBox_sta_radius():
             val = self.spinBox_sta_radius.value()
-            self.mapView.robot_radius = val
-            self.mapView.path.robot_radius = val
+            self.mapView.view_robot_radius += (val-self.robot_radius)
+            self.robot_radius = val
+            self.mapView.clear_map()
         self.spinBox_sta_radius.setValue(5)
         self.spinBox_sta_radius.valueChanged.connect(spinBox_sta_radius)
 
@@ -151,9 +202,17 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.sta_work_bopt = False
 
             if self.sta_work_move is True:
+                def setButton(a):
+                    self.pushButton_1.setDisabled(a)
+                    self.pushButton_2.setDisabled(a)
+                    self.pushButton_3.setDisabled(a)
+                    self.pushButton_4.setDisabled(a)
+                    self.pushButton_5.setDisabled(a)
+                    self.pushButton_6.setDisabled(a)
+                setButton(True)
                 self.mapView.get_move(self.remote)
                 self.sta_work_move = False
-
+                setButton(False)
             rate.sleep()
 
     def thread_flashStatus(self, haha=1):
@@ -193,7 +252,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.label_map.setPixmap(convertFrame(self.mapView.returnFrame))
         val = 100
         if len(self.mapView.pathList)!=0:
-            val = len(self.mapView.pathList)*(100/self.mapView.pathLen)
+            val = int(len(self.mapView.pathList)*(100/self.mapView.pathLen))
         self.progressBar.setValue(100-val)
 
 

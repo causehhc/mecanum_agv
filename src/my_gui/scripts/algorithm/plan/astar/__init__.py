@@ -41,9 +41,10 @@ class Node:
 
 
 class Analyzer:
-    def __init__(self, world, path_val, robot_radius):
+    def __init__(self, world, path_val, robot_radius, scale):
         self.path_list = []
         self.proc_list = []
+        self.scale = scale
 
         self.path_val = path_val
         self.robot_radius = robot_radius
@@ -63,7 +64,10 @@ class Analyzer:
 
         # black swell
         dilate_tmp = np.where(tmp != 1, tmp, 255)  # tmp[row][col]==1 -> 255
-        dilate_tmp = cv2.erode(dilate_tmp, np.ones((13, 13), dtype=np.uint8), 1)
+        param = int(1 / self.scale * (13.0 * 5.0))
+        if param < 1:
+            param = 2
+        dilate_tmp = cv2.erode(dilate_tmp, np.ones((param, param), dtype=np.uint8), 1)
         dilate_tmp = np.where(dilate_tmp != 255, dilate_tmp, 1)  # tmp[row][col]==255 -> 1
         dilate_map = dilate_tmp
 
@@ -92,8 +96,9 @@ class Analyzer:
         return False
 
     def _is_dewalkable(self, node_position):
-        tmp = self.costmap[node_position[0] - self.robot_radius:node_position[0] + self.robot_radius, node_position[1] - self.robot_radius:node_position[1] + self.robot_radius]
-        aim = ((self.robot_radius*2)**2)*self.path_val
+        tmp = self.costmap[node_position[0] - self.robot_radius:node_position[0] + self.robot_radius,
+              node_position[1] - self.robot_radius:node_position[1] + self.robot_radius]
+        aim = ((self.robot_radius * 2) ** 2) * self.path_val
         return tmp.sum() == aim
 
     def _is_goal(self, current_node, end_node):
@@ -160,16 +165,16 @@ class Analyzer:
                 if new_node.pos in closed_set:  # Child is on the closed list
                     continue
 
-                step_distance = math.sqrt(((new_pos[0]) ** 2) + ((new_pos[1]) ** 2))
-                new_node.g = current_node.g + step_distance
                 (x1, y1) = new_node.pos
                 (x2, y2) = end_node.pos
-                new_node.h = math.sqrt(((x1-x2)**2) + ((y1-y2)**2))
+                step_distance = math.sqrt(((new_pos[0]) ** 2) + ((new_pos[1]) ** 2))
+                new_node.g = current_node.g + step_distance
+                new_node.h = math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
                 new_node.f = new_node.g + new_node.h
 
                 if new_node in open_list:
                     if current_node.g + step_distance < new_node.g:
-                        # TODO
+                        # seems nothing do
                         pass
                     continue
                 open_list.append(new_node)

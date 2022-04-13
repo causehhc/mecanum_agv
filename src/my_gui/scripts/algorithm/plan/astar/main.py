@@ -19,7 +19,7 @@ class Visual:
         self.PATH = PATH
 
         t1 = time.time()
-        self.runner = Analyzer(maze, PATH, robot_radius)
+        self.runner = Analyzer(maze, PATH, robot_radius, 5)
         t2 = time.time()
         print(t2 - t1)
 
@@ -114,18 +114,6 @@ class Visual:
                 outline="black",
                 fill="green"
             )
-
-        if haha == 2:
-            new_list = self.runner.bezier(self.path_list)
-            while len(new_list):
-                node = new_list.pop(0)
-                self.canva.create_rectangle(
-                    int(node[1]),
-                    int(node[0]),
-                    int(node[1]),
-                    int(node[0]),
-                    outline="red"
-                )
 
 
 

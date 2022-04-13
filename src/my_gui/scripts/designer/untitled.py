@@ -152,7 +152,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.horizontalLayout_7.addWidget(self.label)
         self.spinBox_sta_radius = QtWidgets.QSpinBox(self.groupBox_7)
-        self.spinBox_sta_radius.setReadOnly(True)
+        self.spinBox_sta_radius.setReadOnly(False)
         self.spinBox_sta_radius.setObjectName("spinBox_sta_radius")
         self.horizontalLayout_7.addWidget(self.spinBox_sta_radius)
         self.verticalLayout_5.addLayout(self.horizontalLayout_7)

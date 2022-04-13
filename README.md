@@ -2,15 +2,10 @@
 ## WARING: DEVELOPING
 ![](./picture/gui.png)
 ## Update
-- GUI flash thread
-- GUI启动hector_SLAM子进程(start_launch.py and __init__.py)
-- GUI main_logic
-- 直接导航(坐标变换)
-- pose diaplay
-- opt bezier
+- opt interface_map
+- lidar display_angle
 ## TODO
-- opt interface_map_speed
-- map_op
+- Optimization A* heuristic function
 ## INIT
 ### 1.创建工作空间并初始化
 ```
@@ -41,5 +36,12 @@ roslaunch sim_gazebo room_world.launch
 `roslaunch rplidar_ros hector_mapping_real.launch`
 ### 7.NAV
 ~~`roslaunch navigation test_amcl.launch`~~
+### 8.Start GUI
+`/home/hhc/anaconda3/envs/py39/bin/python /home/hhc/Desktop/ros/bishe_ws/src/my_gui/scripts/main.py`
 
 pip install opencv-python==4.3.0.38 -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+## Need HardWare_Interface
+- /camera/image_raw/compressed
+- /cmd_vel
+- /scan
