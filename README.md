@@ -1,6 +1,7 @@
 # mecanum_agv
 ## WARING: DEVELOPING
 ![](./picture/gui.png)
+![](./picture/localnetwork.png)
 ## Update
 - opt interface_map
 - lidar display_angle
@@ -21,6 +22,8 @@ roslaunch sim_gazebo room_world.launch
 ## START
 ### 0.start pub /scan
 `roslaunch rplidar_ros rplidar.launch`
+`roslaunch my_driver start.launch`
+`rosrun my_driver trd_driver.py`
 ### 1.start room_world simulation
 ```
 killall gzserver
