@@ -19,6 +19,8 @@ source ./devel/setup.bash
 roslaunch sim_gazebo room_world.launch
 ```
 ## START
+### 0.start pub /scan
+`roslaunch rplidar_ros rplidar.launch`
 ### 1.start room_world simulation
 ```
 killall gzserver

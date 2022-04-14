@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="my_driver" type="trd_driver.py" name="trd_driver" output="screen" />
+    <!-- <node pkg="turtlesim" type="turtle_teleop_key"  name="myTurtleContro" output="screen" /> -->
+</launch>
