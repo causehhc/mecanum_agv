@@ -21,7 +21,8 @@ roslaunch sim_gazebo room_world.launch
 ```
 ## START
 ### 0.start pub /scan
-`roslaunch rplidar_ros rplidar.launch`
+~~`roslaunch rplidar_ros rplidar.launch`~~
+`roslaunch delta_lidar delta_lidar.launch`
 `roslaunch my_driver start.launch`
 `rosrun my_driver trd_driver.py`
 ### 1.start room_world simulation
