@@ -7,3 +7,5 @@
 /src/my_gui/scripts/.idea
 __pycache__/
 /src/navigation/
+/bishe_stm32/cmake-build-debug
+/bishe_stm32/.idea
