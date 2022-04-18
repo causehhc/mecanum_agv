@@ -31,8 +31,8 @@ ACTION=="add",KERNELS=="1-1.2.1",SUBSYSTEMS=="usb",MODE:="0777",SYMLINK+="ttyUSB
 - sudo udevadm trigger
 - ll /dev | grep ttyUSB
 #### Install something
-`sudo apt-get install ros-melodic-image-view`
 `sudo apt-get install ros-melodic-usb-cam`
+`sudo apt install ros-melodic-image-transport-plugins`
 `pip install pyserial`
 #### Start
 `roslaunch my_driver start.launch`
