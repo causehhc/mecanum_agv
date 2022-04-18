@@ -20,11 +20,24 @@ source ./devel/setup.bash
 roslaunch sim_gazebo room_world.launch
 ```
 ## START
-### 0.start pub /scan
-~~`roslaunch rplidar_ros rplidar.launch`~~
-`roslaunch delta_lidar delta_lidar.launch`
+### 0.start realMachine
+#### Bind USB_port
+- sudo vim /etc/udev/rules.d/com_port.rules
+- ls -l /sys/class/tty/ttyUSB*
+```
+ACTION=="add",KERNELS=="1-1.2.4",SUBSYSTEMS=="usb",MODE:="0777",SYMLINK+="ttyUSB_stm32"
+ACTION=="add",KERNELS=="1-1.2.1",SUBSYSTEMS=="usb",MODE:="0777",SYMLINK+="ttyUSB_lidar"
+```
+- sudo udevadm trigger
+- ll /dev | grep ttyUSB
+#### Install something
+`sudo apt-get install ros-melodic-image-view`
+`sudo apt-get install ros-melodic-usb-cam`
+`pip install pyserial`
+#### Start
 `roslaunch my_driver start.launch`
-`rosrun my_driver trd_driver.py`
+#### test
+`rosrun image_view image_view image:=/usb_cam/image_raw`
 ### 1.start room_world simulation
 ```
 killall gzserver
