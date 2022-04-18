@@ -1,7 +1,10 @@
 # mecanum_agv
 ## WARING: DEVELOPING
 ![](./picture/gui.png)
+
 ![](./picture/localnetwork.png)
+
+![](./picture/real.jpg)
 ## Update
 - opt interface_map
 - lidar display_angle
