@@ -2,9 +2,13 @@
 ## WARING: DEVELOPING
 ![](./picture/gui.png)
 
+![](./picture/maze.png)
+
 ![](./picture/localnetwork.png)
 
 ![](./picture/real.jpg)
+
+![](./picture/car.png)
 ## Update
 - opt interface_map
 - lidar display_angle
