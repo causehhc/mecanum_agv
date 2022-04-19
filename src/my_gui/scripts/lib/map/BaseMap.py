@@ -13,7 +13,7 @@ class BaseMap:
         self.size = (600, 600)
         self.scale = 5
         self.diff = [0, 0]
-        self.view_robot_radius = 5
+        self.view_robot_radius = 4
         self.map = MapInterface("/map", self.size, self.scale, self.diff)
         self.pose = PoseInterface("/slam_out_pose", self.size, self.scale, self.diff)
         self.path = PathInterface()
@@ -26,8 +26,8 @@ class BaseMap:
         self.bezierList = []
         self.returnFrame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
 
-    def get_map(self):
-        self.layerList = self.path.find_map(self.map.bitmap, 1, self.view_robot_radius, self.scale)
+    def get_map(self,r):
+        self.layerList = self.path.find_map(self.map.bitmap, 1, self.view_robot_radius, self.scale,r)
 
     def clear_map(self):
         self.get_clear()
@@ -50,9 +50,14 @@ class BaseMap:
         self.pathList = []
         self.bezierList = []
 
-    def get_move(self, remote):
-        if len(self.pathList)!=0:
-            self.path.find_aim(self.pathList, self.pose, remote)
+    def get_move(self, remote, r):
+        if len(self.bezierList) != 0:
+            temp_list = list(self.bezierList)
+            self.path.find_aim(temp_list, self.pose, remote, r)
+        elif len(self.pathList) != 0:
+            self.path.find_aim(self.pathList, self.pose, remote, r)
+        elif self.end is not None:
+            self.path.find_aim([self.end], self.pose, remote, r)
 
     def update_frame(self):
         # draw frame
@@ -68,9 +73,9 @@ class BaseMap:
         y1 = int(self.pose.y - self.view_robot_radius / 2)
         x2 = int(self.pose.x + self.view_robot_radius / 2)
         y2 = int(self.pose.y + self.view_robot_radius / 2)
-        cv2.rectangle(self.frame,(y1, x1), (y2, x2), (0,0,225), -1)# red
-        x3 = int((self.view_robot_radius) * math.cos(self.pose.yaw) + self.pose.x)
-        y3 = int((self.view_robot_radius) * math.sin(self.pose.yaw) + self.pose.y)
+        cv2.rectangle(self.frame, (y1, x1), (y2, x2), (0, 0, 225), -1)  # red
+        x3 = int(self.view_robot_radius * math.cos(self.pose.yaw) + self.pose.x)
+        y3 = int(self.view_robot_radius * math.sin(self.pose.yaw) + self.pose.y)
         cv2.line(self.frame, (self.pose.y, self.pose.x), (y3, x3), (255, 0, 0), 1)
 
         # draw self_end
@@ -79,7 +84,7 @@ class BaseMap:
             y1 = int(self.end[1] - self.view_robot_radius / 2)
             x2 = int(self.end[0] + self.view_robot_radius / 2)
             y2 = int(self.end[1] + self.view_robot_radius / 2)
-            cv2.rectangle(self.frame,(y1, x1), (y2, x2), (0,0,225), 1)# red
+            cv2.rectangle(self.frame, (y1, x1), (y2, x2), (0, 0, 225), 1)  # red
 
     def update_path(self):
         if self.end is None:

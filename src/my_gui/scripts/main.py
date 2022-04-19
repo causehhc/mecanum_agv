@@ -15,17 +15,16 @@ from algorithm.slam.hector import Hetor_SLAM
 
 import rospy
 import _thread
-from multiprocessing import Process
-import time
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
     text_update = pyqtSignal(str)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
 
-        self.robot_radius = 5
+        self.robot_radius = 4
 
         # print
         self.text_update.connect(self.append_text)
@@ -97,31 +96,35 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # self.pushButton_.clicked.connect(pushButton_)
 
         def pushButton_1():
-            self.mapView.map.change_param(0, [10, 0])
-            self.mapView.pose.change_param(0, [10, 0])
-            self.mapView.map.image_transform()
-            self.mapView.clear_map()
-        self.pushButton_1.clicked.connect(pushButton_1)
-
-        def pushButton_2():
-            self.mapView.map.change_param(0, [0, 10])
-            self.mapView.pose.change_param(0, [0, 10])
-            self.mapView.map.image_transform()
-            self.mapView.clear_map()
-        self.pushButton_2.clicked.connect(pushButton_2)
-
-        def pushButton_3():
-            self.mapView.map.change_param(0, [0, -10])
-            self.mapView.pose.change_param(0, [0, -10])
-            self.mapView.map.image_transform()
-            self.mapView.clear_map()
-        self.pushButton_3.clicked.connect(pushButton_3)
-
-        def pushButton_4():
             self.mapView.map.change_param(0, [-10, 0])
             self.mapView.pose.change_param(0, [-10, 0])
             self.mapView.map.image_transform()
             self.mapView.clear_map()
+
+        self.pushButton_1.clicked.connect(pushButton_1)
+
+        def pushButton_2():
+            self.mapView.map.change_param(0, [0, -10])
+            self.mapView.pose.change_param(0, [0, -10])
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+
+        self.pushButton_2.clicked.connect(pushButton_2)
+
+        def pushButton_3():
+            self.mapView.map.change_param(0, [0, 10])
+            self.mapView.pose.change_param(0, [0, 10])
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+
+        self.pushButton_3.clicked.connect(pushButton_3)
+
+        def pushButton_4():
+            self.mapView.map.change_param(0, [10, 0])
+            self.mapView.pose.change_param(0, [10, 0])
+            self.mapView.map.image_transform()
+            self.mapView.clear_map()
+
         self.pushButton_4.clicked.connect(pushButton_4)
 
         def pushButton_5():
@@ -130,6 +133,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.mapView.view_robot_radius += 1
             self.mapView.map.image_transform()
             self.mapView.clear_map()
+
         self.pushButton_5.clicked.connect(pushButton_5)
 
         def pushButton_6():
@@ -139,6 +143,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.mapView.view_robot_radius -= 1
             self.mapView.map.image_transform()
             self.mapView.clear_map()
+
         self.pushButton_6.clicked.connect(pushButton_6)
 
         def pushButton_connect():
@@ -151,11 +156,13 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.has_start_main = True
             else:
                 print('Has connected')
+
         self.pushButton_connect.clicked.connect(pushButton_connect)
 
         def pushButton_cancel():
             print('TODO')
             pass
+
         self.pushButton_cancel.clicked.connect(pushButton_cancel)
 
         def checkBox_remote():
@@ -164,25 +171,32 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.sta_remote = True
             else:
                 self.sta_remote = False
+
         self.checkBox_remote.clicked.connect(checkBox_remote)
 
         def pushButton_aopt():
             self.sta_work_aopt = True
+
         self.pushButton_aopt.clicked.connect(pushButton_aopt)
 
         def pushButton_bopt():
             self.sta_work_bopt = True
+
         self.pushButton_bopt.clicked.connect(pushButton_bopt)
 
         def pushButton_move():
             self.sta_work_move = True
+            self.sta_remote = False
+            self.checkBox_remote.setCheckState(False)
+
         self.pushButton_move.clicked.connect(pushButton_move)
 
         def spinBox_sta_radius():
             val = self.spinBox_sta_radius.value()
-            self.mapView.view_robot_radius += (val-self.robot_radius)
+            self.mapView.view_robot_radius += (val - self.robot_radius)
             self.robot_radius = val
             self.mapView.clear_map()
+
         self.spinBox_sta_radius.setValue(5)
         self.spinBox_sta_radius.valueChanged.connect(spinBox_sta_radius)
 
@@ -194,7 +208,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.sta_work_path = False
 
             if self.sta_work_aopt is True:
-                self.mapView.get_map()
+                self.mapView.get_map(self.robot_radius)
                 self.sta_work_aopt = False
 
             if self.sta_work_bopt is True:
@@ -209,8 +223,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                     self.pushButton_4.setDisabled(a)
                     self.pushButton_5.setDisabled(a)
                     self.pushButton_6.setDisabled(a)
+
                 setButton(True)
-                self.mapView.get_move(self.remote)
+                self.mapView.get_move(self.remote, self.robot_radius)
                 self.sta_work_move = False
                 setButton(False)
             rate.sleep()
@@ -247,13 +262,14 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             frame = QImage(frame, width, height, QImage.Format_RGB888)
             frame = QPixmap.fromImage(frame)
             return frame
+
         self.label_cam.setPixmap(convertFrame(self.camView.returnFrame))
         self.label_lidar.setPixmap(convertFrame(self.lidarView.returnFrame))
         self.label_map.setPixmap(convertFrame(self.mapView.returnFrame))
         val = 100
-        if len(self.mapView.pathList)!=0:
-            val = int(len(self.mapView.pathList)*(100/self.mapView.pathLen))
-        self.progressBar.setValue(100-val)
+        if len(self.mapView.pathList) != 0:
+            val = int(len(self.mapView.pathList) * (100 / self.mapView.pathLen))
+        self.progressBar.setValue(100 - val)
 
 
 def shutdown():
