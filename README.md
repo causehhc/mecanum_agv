@@ -59,7 +59,7 @@ roslaunch sim_gazebo room_world.launch
 ### 7.NAV
 ~~`roslaunch navigation test_amcl.launch`~~
 ### 8.Start GUI
-`/home/hhc/anaconda3/envs/py39/bin/python /home/hhc/Desktop/ros/bishe_ws/src/my_gui/scripts/main.py`
+`/home/hhc/anaconda3/envs/py39/bin/python /home/hhc/Desktop/ros/mecanum_agv/src/my_gui/scripts/main.py`
 
 pip install opencv-python==4.3.0.38 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
