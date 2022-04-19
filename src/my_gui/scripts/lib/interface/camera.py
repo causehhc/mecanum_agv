@@ -23,7 +23,7 @@ class CameraInterface:
 
 def main():
     rospy.init_node('cam_listener')
-    cam = CameraInterface("/camera/image_raw/compressed", (300, 300))
+    cam = CameraInterface("/usb_cam/image_raw/compressed", (300, 300))
     while True:
         frame = cam.frame
         if frame is not None:

@@ -15,7 +15,7 @@ void set_ADD(motorInfoType *motorInfo){
 
 void incremental_PI(motorInfoType *motorInfo){
   motorInfo->pidInfo.Bias = motorInfo->pidInfo.TGT - motorInfo->pidInfo.ENC;
-  motorInfo->pidInfo.PWM += motorInfo->pidInfo.Velocity_KP*(motorInfo->pidInfo.Bias-motorInfo->pidInfo.Last_bias)+motorInfo->pidInfo.Velocity_KP*motorInfo->pidInfo.Bias;
+  motorInfo->pidInfo.PWM += motorInfo->pidInfo.Velocity_KP*(motorInfo->pidInfo.Bias-motorInfo->pidInfo.Last_bias)+motorInfo->pidInfo.Velocity_KI*motorInfo->pidInfo.Bias;
   motorInfo->pidInfo.Last_bias = motorInfo->pidInfo.Bias;
   if(motorInfo->pidInfo.TGT==0){
     motorInfo->pidInfo.PWM = 0;
@@ -52,8 +52,8 @@ void init_motorInfo(motorInfoType *motorInfo, TIM_HandleTypeDef enc_htimx, TIM_H
   motorInfo->pidInfo.ADD = 0;
   motorInfo->pidInfo.TGT = 0;
   motorInfo->pidInfo.PWM = 0;
-  motorInfo->pidInfo.Velocity_KP = 10;
-  motorInfo->pidInfo.Velocity_KI = 10;
+  motorInfo->pidInfo.Velocity_KP = 120;
+  motorInfo->pidInfo.Velocity_KI = 30;
   motorInfo->enc_htimx = enc_htimx;
   motorInfo->pwm_a_htimx = pwm_a_htimx;
   motorInfo->pwm_a_channel_x = pwm_a_channel_x;

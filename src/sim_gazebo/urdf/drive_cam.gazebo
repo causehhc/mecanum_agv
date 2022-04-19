@@ -24,7 +24,7 @@
 
                     <alwaysOn>1</alwaysOn>
                     <updateRate>0.0</updateRate>
-                    <cameraName>camera</cameraName>
+                    <cameraName>usb_cam</cameraName>
                     <imageTopicName>image_raw</imageTopicName>
                     <cameraInfoTopicName>camera_info</cameraInfoTopicName>
                     <frameName>cam_link</frameName>

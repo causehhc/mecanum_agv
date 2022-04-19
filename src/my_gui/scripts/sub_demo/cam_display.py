@@ -19,7 +19,7 @@ def callback(data):
 
 def main():
     rospy.init_node('cam_listener', anonymous=True)
-    rospy.Subscriber("/camera/image_raw/compressed", CompressedImage, callback, queue_size=1)
+    rospy.Subscriber("/usb_cam/image_raw/compressed", CompressedImage, callback, queue_size=1)
     rospy.spin()
 
 

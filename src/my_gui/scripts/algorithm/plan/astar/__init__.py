@@ -41,7 +41,7 @@ class Node:
 
 
 class Analyzer:
-    def __init__(self, world, path_val, robot_radius, scale):
+    def __init__(self, world, path_val, robot_radius, scale, r):
         self.path_list = []
         self.proc_list = []
         self.scale = scale
@@ -50,9 +50,9 @@ class Analyzer:
         self.robot_radius = robot_radius
         self.costmap = copy.deepcopy(world)
         self.layer_list = []
-        self._generate_costmap(world)
+        self._generate_costmap(world, r)
 
-    def _generate_costmap(self, world):
+    def _generate_costmap(self, world, r):
         self.layer_list = []
         tmp = copy.deepcopy(world)
         tmp = np.array(tmp)
@@ -64,7 +64,7 @@ class Analyzer:
 
         # black swell
         dilate_tmp = np.where(tmp != 1, tmp, 255)  # tmp[row][col]==1 -> 255
-        param = int(1 / self.scale * (13.0 * 5.0))
+        param = int(r / self.scale * 15.0)
         if param < 1:
             param = 2
         dilate_tmp = cv2.erode(dilate_tmp, np.ones((param, param), dtype=np.uint8), 1)

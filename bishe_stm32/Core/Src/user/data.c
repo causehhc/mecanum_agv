@@ -5,6 +5,7 @@
 #include "user/data.h"
 #include "user/motor.h"
 extern carInfoType carInfo;
+extern motorInfoType motorInfoList[4];
 
 uint8_t RxBuffer[20];
 __IO uint8_t RxCounter = 0;
@@ -29,6 +30,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 void user_api(){
   if(RxBuffer[0]=='['&&RxBuffer[4]==']'){
     // PZdnx
+//    motorInfoList[0].pidInfo.Velocity_KP = (RxBuffer[1]-50)*10;
+//    motorInfoList[0].pidInfo.Velocity_KI = (RxBuffer[2]-50)*1;
     carInfo.x = RxBuffer[1]-100;
     carInfo.y = RxBuffer[2]-100;
     carInfo.z = RxBuffer[3]-100;

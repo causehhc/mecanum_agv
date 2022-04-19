@@ -144,11 +144,21 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    printf("%d %d %d\n", carInfo.x, carInfo.y, carInfo.z);
-    for (uint8_t i=0; i<4; i++){
-      printf("%d %d %d\n", motorInfoList[i].pidInfo.ENC, motorInfoList[i].pidInfo.TGT, motorInfoList[i].pidInfo.PWM);
-    }
-    printf("\n");
+//    printf("%d %d %d\n", carInfo.x, carInfo.y, carInfo.z);
+//    for (uint8_t i=0; i<4; i++){
+//      printf("%-4d\t%-4d\t%-6d\n", motorInfoList[i].pidInfo.ENC, motorInfoList[i].pidInfo.TGT, motorInfoList[i].pidInfo.PWM);
+//    }
+//    printf("%-4d\t%-4d\t%-6d\n", motorInfoList[0].pidInfo.ENC, motorInfoList[0].pidInfo.TGT, motorInfoList[0].pidInfo.PWM);
+//    printf("%d\n", motorInfoList[0].pidInfo.ENC);
+//    printf("%d,%d,%d\r\n",motorInfoList[0].pidInfo.PWM/1000, motorInfoList[0].pidInfo.ENC, carInfo.x);
+//    printf("%-4d\t%-4d\t%-6d\n", motorInfoList[2].pidInfo.ENC, motorInfoList[2].pidInfo.TGT, motorInfoList[2].pidInfo.PWM);
+//    printf("\n");
+
+//    if(!HAL_GPIO_ReadPin(KEY_USER_GPIO_Port, KEY_USER_Pin)){
+//      carInfo.x = 10;
+//    } else{
+//      carInfo.x = 0;
+//    }
 
     osDelay(10);
   }
