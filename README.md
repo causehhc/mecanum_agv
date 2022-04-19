@@ -53,9 +53,9 @@ roslaunch sim_gazebo room_world.launch
 ### 4.start image view
 `rosrun image_view image_view image:=/sim/smallCar/camera/image_raw`
 ### 5.start hector_mapping SLAM(NEED Third pkg)
-`roslaunch rplidar_ros hector_mapping_demo.launch`
+`roslaunch my_gui hector_mapping_demo.launch`
 ### 6.It's time to get some realShit
-`roslaunch rplidar_ros hector_mapping_real.launch`
+`roslaunch my_gui hector_mapping_real.launch`
 ### 7.NAV
 ~~`roslaunch navigation test_amcl.launch`~~
 ### 8.Start GUI
