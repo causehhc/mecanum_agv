@@ -49,7 +49,7 @@ roslaunch sim_gazebo room_world.launch
 ### 3.start remote car
 `conda activate py39 && rosrun sim_gazebo remote_car.py`
 ### 4.start image view
-`rosrun image_view image_view image:=/sim/smallCar/camera/image_raw`
+`rosrun image_view image_view image:=/usb_cam/image_raw`
 ### 5.start hector_mapping SLAM
 `roslaunch my_gui hector_mapping.launch`
 ### 6.Start GUI
