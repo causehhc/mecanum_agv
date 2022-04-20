@@ -7,7 +7,6 @@ from algorithm.slam.hector.lib.scan.DataPointContainer import DataPointContainer
 class HectorMappingRos:
     def __init__(self):
         self.laserScanContainer = None
-        self.slamProcessor = HectorSlamProcessor()
         self.dataContainer = DataPointContainer()
 
     def rosLaserScanToDataContainer(self, scan, dataContainer, scaleToMap):

@@ -148,7 +148,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
         def pushButton_connect():
             if self.has_start_main is None:
-                Hetor_SLAM().start()
+                # Hetor_SLAM().start()
                 _thread.start_new_thread(self.thread_work, (1,))
                 _thread.start_new_thread(self.thread_remote, (1,))
                 _thread.start_new_thread(self.thread_flashGUI_info, (1,))
