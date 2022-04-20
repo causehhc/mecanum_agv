@@ -1,13 +1,11 @@
 # mecanum_agv
-![](./picture/gui.png)
+![](./picture/soft.png)
 
-![](./picture/maze.png)
+![](./picture/rqt_graph.png)
 
 ![](./picture/localnetwork.png)
 
-![](./picture/real.jpg)
-
-![](./picture/car.png)
+![](./picture/hard.png)
 ## INIT
 ### 1.创建工作空间并初始化
 ```
