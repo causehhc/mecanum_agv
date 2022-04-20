@@ -4,8 +4,6 @@
 /.vscode
 /.catkin_workspace
 /src/CMakeLists.txt
-/src/my_gui/scripts/.idea
-__pycache__/
-/src/navigation/
 /bishe_stm32/cmake-build-debug
-/bishe_stm32/.idea
+**/.idea/
+**/__pycache__/

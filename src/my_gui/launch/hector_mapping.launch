@@ -25,7 +25,7 @@
     <param name="laser_min_dist" value="0.4" />
     <param name="laser_max_dist" value="5.5" />
     <param name="output_timing" value="false" />
-    <param name="pub_map_scanmatch_transform" value="true" />
+    <param name="pub_map_scanmatch_transform" value="false" />
     <!--<param name="tf_map_scanmatch_transform_frame_name" value="scanmatcher_frame" />-->
     
     <!-- Map update parameters -->
@@ -35,7 +35,7 @@
     <param name="map_update_angle_thresh" value="0.06" />
     
     <!-- Advertising config --> 
-    <param name="advertise_map_service" value="true"/>
+    <param name="advertise_map_service" value="false"/>
     <param name="scan_subscriber_queue_size" value="5"/>
     <param name="scan_topic" value="/scan"/>
   </node>
