@@ -142,10 +142,10 @@ include
 )
 
 ## Hector SLAM
-# add_executable(${PROJECT_NAME}_hector_slam_node
+# add_executable(${PROJECT_NAME}_node
 #   src/main.cpp
 # )
-add_executable(${PROJECT_NAME}_hector_slam_node
+add_executable(${PROJECT_NAME}_node
   # src/HectorDebugInfoProvider.h
   # src/HectorDrawings.h
   src/HectorMappingRos.h
@@ -155,11 +155,11 @@ add_executable(${PROJECT_NAME}_hector_slam_node
   # src/PoseInfoContainer.h
 )
 
-add_dependencies(${PROJECT_NAME}_hector_slam_node
+add_dependencies(${PROJECT_NAME}_node
 ${catkin_EXPORTED_TARGETS}
 )
 
-target_link_libraries(${PROJECT_NAME}_hector_slam_node
+target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
 )
