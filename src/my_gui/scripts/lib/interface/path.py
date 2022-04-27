@@ -102,7 +102,7 @@ class PathInterface:
     def find_aim(self, path_list, pose, remote, r):
         while len(path_list):
             aim_pos = path_list.pop()
-            self.direct_navigation(pose, aim_pos, remote, r)
+            self.direct_navigation(pose, aim_pos, remote, r*2)
         for i in range(100):
             remote.move_cmd_send([0, 0, 0, 0])
             print('ok, {}'.format(time.time()))

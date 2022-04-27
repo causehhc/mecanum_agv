@@ -26,7 +26,7 @@ pip install pyqt5 opencv-python-headless defusedxml netifaces pyyaml rospkg keyb
 ```
 roscore
 roslaunch sim_gazebo room_world.launch
-sudo /home/hhc/anaconda3/envs/py39/bin/python /home/hhc/Desktop/ros/mecanum_agv/src/my_gui/scripts/main.py
+/home/hhc/anaconda3/envs/py39/bin/python /home/hhc/Desktop/ros/mecanum_agv/src/my_gui/scripts/main.py
 ```
 ## 4. Start realMachine
 ### 4.1. Bind USB_port
