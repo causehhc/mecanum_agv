@@ -15,9 +15,14 @@ def get_host_ip():
 
 if __name__=='__main__':
     ser = serial.Serial('/dev/ttyUSB_stm32', 115200)
+    cnt = 0
     while True:
         ip = get_host_ip()
-        cmd_str = "{}{}{}".format('"', ip, '"')
+        cmd_str = "{}{}:{}{}".format('"',cnt, ip, '"')
         cmd = bytes(cmd_str, encoding = "utf8")
         ser.write(cmd)
-        time.sleep(10)
+        print(cmd)
+        cnt += 1
+        if cnt==10:
+          cnt=0
+        time.sleep(1)

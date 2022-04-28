@@ -46,6 +46,22 @@ pip install pyserial
 ```
 ### 4.3. start
 `roslaunch my_driver start.launch`
+### 4.4 Auto-start
+- sudo vim /lib/systemd/system/rc-local.service
+```
+[Install]
+WantedBy=multi-user.target
+Alias=rc-local.service
+```
+- systemctl enable rc-local
+- systemctl start rc-local
+- sudo vim /etc/rc.local
+```
+#!/bin/bash
+# TODO
+exit 0
+```
+- sudo chmod +x /etc/rc.local
 ## 5. Need HardWare_Interface
 - /usb_cam/image_raw/compressed
 - /cmd_vel
