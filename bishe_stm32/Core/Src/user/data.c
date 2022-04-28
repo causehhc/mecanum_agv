@@ -4,8 +4,10 @@
 
 #include "user/data.h"
 #include "user/motor.h"
+
 extern carInfoType carInfo;
 extern motorInfoType motorInfoList[4];
+extern uint8_t ipaddr[15];
 
 uint8_t RxBuffer[20];
 __IO uint8_t RxCounter = 0;
@@ -21,26 +23,45 @@ void send_data(uint8_t *data, uint8_t len){
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-  if(huart->Instance == UART4){
+  if(huart == &huart4){
     RxBuffer[RxCounter++] = Rx_Temp;
     HAL_UART_Receive_IT(&huart4,(uint8_t*)&Rx_Temp,1);
   }
 }
 
+void carDataParse(){
+  carInfo.x = RxBuffer[1]-100;
+  carInfo.y = RxBuffer[2]-100;
+  carInfo.z = RxBuffer[3]-100;
+}
+
+void ipaddrDataParse(){
+  uint8_t flag = 0;
+  uint8_t i;
+  for(i=0; i<14; i++){
+    if(RxBuffer[i+1]=='"'){
+      flag = 1;
+    }
+    if(flag==0){
+      ipaddr[i] = RxBuffer[i+1];
+    } else{
+      ipaddr[i] = ' ';
+    }
+  }
+  ipaddr[i] = '\0';
+}
+
 void user_api(){
   if(RxBuffer[0]=='['&&RxBuffer[4]==']'){
-    // PZdnx
-//    motorInfoList[0].pidInfo.Velocity_KP = (RxBuffer[1]-50)*10;
-//    motorInfoList[0].pidInfo.Velocity_KI = (RxBuffer[2]-50)*1;
-    carInfo.x = RxBuffer[1]-100;
-    carInfo.y = RxBuffer[2]-100;
-    carInfo.z = RxBuffer[3]-100;
+    carDataParse();
+  } else if (RxBuffer[0]=='"'&&RxBuffer[1]=='1'&&RxBuffer[2]=='9'&&RxBuffer[3]=='2'){
+    ipaddrDataParse();
   }
 }
 
 void USER_UART_IDLECallback(UART_HandleTypeDef *huart)
 {
-  if(huart->Instance == UART4){
+  if(huart == &huart4){
     if(RESET != __HAL_UART_GET_FLAG(&huart4, UART_FLAG_IDLE)){
       user_api();
       HAL_UART_Transmit(&huart4, RxBuffer, RxCounter, 0xffff);

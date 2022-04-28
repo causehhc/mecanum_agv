@@ -25,10 +25,10 @@ typedef struct {
 }pidInfoType;
 
 typedef struct {
-  pidInfoType pidInfo;
-  TIM_HandleTypeDef enc_htimx;
-  TIM_HandleTypeDef pwm_a_htimx;
-  TIM_HandleTypeDef pwm_b_htimx;
+  pidInfoType *pidInfo;
+  TIM_HandleTypeDef *enc_htimx;
+  TIM_HandleTypeDef *pwm_a_htimx;
+  TIM_HandleTypeDef *pwm_b_htimx;
   uint16_t pwm_a_channel_x;
   uint16_t pwm_b_channel_x;
 }motorInfoType;
@@ -38,7 +38,7 @@ void set_ADD(motorInfoType *motorInfo);
 void incremental_PI(motorInfoType *motorInfo);
 void range_PWM(motorInfoType *motorInfo, int16_t amplitude);
 void set_PWM(motorInfoType *motorInfo);
-void init_motorInfo(motorInfoType *motorInfo, TIM_HandleTypeDef enc_htimx, TIM_HandleTypeDef pwm_a_htimx, TIM_HandleTypeDef pwm_b_htimx, uint16_t pwm_a_channel_x, uint16_t pwm_b_channel_x);
+void init_motorInfo(motorInfoType *motorInfo,pidInfoType *pidInfo, TIM_HandleTypeDef *enc_htimx, TIM_HandleTypeDef *pwm_a_htimx, TIM_HandleTypeDef *pwm_b_htimx, uint16_t pwm_a_channel_x, uint16_t pwm_b_channel_x);
 void Kinematic_Analysis_4(motorInfoType *motorInfoList, carInfoType *carInfo);
 void start_motor(motorInfoType *motorInfoList, uint8_t len);
 void motor_run(motorInfoType *motorInfoList, uint8_t len);
