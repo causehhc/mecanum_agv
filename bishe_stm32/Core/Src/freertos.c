@@ -54,7 +54,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 carInfoType carInfo;
 pidInfoType pidInfoList[4];
 motorInfoType motorInfoList[4];
-uint8_t ipaddr[15] = "192.168.2.1";
+uint8_t ipaddr[20] = "0:192.168.2.1";
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
@@ -199,7 +199,7 @@ void StartDefaultTask(void *argument)
 //    for (uint8_t i=0; i<4; i++){
 //      printf("%-4d\t%-4d\t%-6d\n", motorInfoList[i].pidInfo.ENC, motorInfoList[i].pidInfo.TGT, motorInfoList[i].pidInfo.PWM);
 //    }
-    printf("%d,%d,%d\r\n",motorInfoList[0].pidInfo->PWM/1000, motorInfoList[0].pidInfo->ENC, carInfo.x);
+//    printf("%d,%d,%d\r\n",motorInfoList[0].pidInfo->PWM/1000, motorInfoList[0].pidInfo->ENC, carInfo.x);
     osDelay(100);
   }
   /* USER CODE END StartDefaultTask */

@@ -36,25 +36,17 @@ void carDataParse(){
 }
 
 void ipaddrDataParse(){
-  uint8_t flag = 0;
   uint8_t i;
-  for(i=0; i<14; i++){
-    if(RxBuffer[i+1]=='"'){
-      flag = 1;
-    }
-    if(flag==0){
-      ipaddr[i] = RxBuffer[i+1];
-    } else{
-      ipaddr[i] = ' ';
-    }
+  for(i=1; RxBuffer[i]!='"'; i++){
+    ipaddr[i-1] = RxBuffer[i];
   }
-  ipaddr[i] = '\0';
+  ipaddr[i-1] = '\0';
 }
 
 void user_api(){
   if(RxBuffer[0]=='['&&RxBuffer[4]==']'){
     carDataParse();
-  } else if (RxBuffer[0]=='"'&&RxBuffer[1]=='1'&&RxBuffer[2]=='9'&&RxBuffer[3]=='2'){
+  } else if (RxBuffer[0]=='"'&&RxBuffer[2]==':'){
     ipaddrDataParse();
   }
 }
