@@ -1,8 +1,6 @@
 <launch>
     <node pkg="my_driver" type="trd_driver.py" name="trd_driver" output="screen" />
 
-    <node pkg="my_driver" type="ipaddr.py" name="ipaddr" output="screen" />
-
     <node name="delta_lidar" pkg="delta_lidar" type="delta_lidar_node" output="screen">
         <param name="serial_port" type="string" value="/dev/ttyUSB_lidar"/>
         <param name="frame_id" type="string" value="laser"/>

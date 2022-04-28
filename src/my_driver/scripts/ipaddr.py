@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import rospy
 import serial
 import socket
+import time
 
 def get_host_ip():
     """
@@ -18,13 +18,11 @@ def get_host_ip():
 
 
 if __name__=='__main__':
-    rospy.init_node('ipaddr')
-    rate = rospy.Rate(1)
     ser = serial.Serial('/dev/ttyUSB_stm32', 115200)
-    while not rospy.is_shutdown():
+    while True:
         ip = get_host_ip()
         cmd_str = "{}{}{}".format('"', ip, '"')
         cmd = list(cmd_str)
-        print(cmd)
+        # print(cmd)
         ser.write(cmd)
-        rate.sleep()
+        time.sleep(10)
