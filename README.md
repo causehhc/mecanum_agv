@@ -7,8 +7,9 @@
 
 ![](./picture/hard.png)
 ## 0. Debug
-python3 /home/pi/ros/mecanum_agv/src/my_driver/scripts/ros_config.py
 roscore
+roslaunch sim_gazebo room_world.launch
+python3 /home/pi/ros/mecanum_agv/src/my_driver/scripts/ros_config.py
 /home/hhc/anaconda3/envs/py39/bin/python /home/hhc/Desktop/ros/mecanum_agv/src/my_gui/scripts/main.py
 ## 1. env
 - ubuntu18.04

@@ -106,41 +106,42 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
     def connect_car(self):
         if self.has_start_main is None:
-            self.client = Client()
-            self.pi_ip = self.lineEdit_piip.text()
-            self.client.connect(self.pi_ip, 15057)
+            if self.checkBox_real.checkState():
+                self.client = Client()
+                self.pi_ip = self.lineEdit_piip.text()
+                self.client.connect(self.pi_ip, 15057)
 
-            self.client.send_msg("IP {}".format(self.pi_ip))
-            recv = self.client.recv_msg()
-            if recv != 'ok':
-                self.print_log("set pi ROS_IP: False")
-                return False
-            else:
-                self.print_log("set pi ROS_IP: {}".format(self.pi_ip))
+                self.client.send_msg("IP {}".format(self.pi_ip))
+                recv = self.client.recv_msg()
+                if recv != 'ok':
+                    self.print_log("set pi ROS_IP: False")
+                    return False
+                else:
+                    self.print_log("set pi ROS_IP: {}".format(self.pi_ip))
 
-            self.client.send_msg("MASTER http://{}:11311/".format(self.my_ip))
-            recv = self.client.recv_msg()
-            if recv != 'ok':
-                self.print_log("set pi ROS_MASTER_URI: False")
-                return False
-            else:
-                self.print_log("set pi ROS_MASTER_URI: ...{}...".format(self.my_ip))
+                self.client.send_msg("MASTER http://{}:11311/".format(self.my_ip))
+                recv = self.client.recv_msg()
+                if recv != 'ok':
+                    self.print_log("set pi ROS_MASTER_URI: False")
+                    return False
+                else:
+                    self.print_log("set pi ROS_MASTER_URI: ...{}...".format(self.my_ip))
 
-            # os.environ["ROS_IP"] = self.my_ip
-            # self.print_log("set ubuntu ROS_IP: {}".format(self.my_ip))
-            # os.environ["ROS_MASTER_URI"] = "http://{}:11311/".format(self.my_ip)
-            # self.print_log("set ubuntu ROS_MASTER_URI: ...{}...".format(self.my_ip))
+                # os.environ["ROS_IP"] = self.my_ip
+                # self.print_log("set ubuntu ROS_IP: {}".format(self.my_ip))
+                # os.environ["ROS_MASTER_URI"] = "http://{}:11311/".format(self.my_ip)
+                # self.print_log("set ubuntu ROS_MASTER_URI: ...{}...".format(self.my_ip))
 
-            # self.p_core = subprocess.Popen("roscore", shell=True)
-            # time.sleep(10)
+                # self.p_core = subprocess.Popen("roscore", shell=True)
+                # time.sleep(10)
 
-            self.client.send_msg("start")
-            recv = self.client.recv_msg()
-            if recv != 'ok':
-                self.print_log("start pi driver False")
-                return False
-            else:
-                self.print_log("start pi driver")
+                self.client.send_msg("start")
+                recv = self.client.recv_msg()
+                if recv != 'ok':
+                    self.print_log("start pi driver False")
+                    return False
+                else:
+                    self.print_log("start pi driver")
 
             rospy.init_node('my_gui')
             rospy.on_shutdown(shutdown)
