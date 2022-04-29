@@ -1,3 +1,6 @@
+import os
+import time
+
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QImage, QPixmap
 
@@ -13,8 +16,13 @@ from lib.map.lidarMap import LidarMap
 from lib.interface.remote import RemoteInterface
 from algorithm.slam.hector import Hetor_SLAM
 
+from lib.submodule.tcp_client import Client
+from lib.submodule.ipaddr import *
+
 import rospy
 import _thread
+# from multiprocessing import Process
+import subprocess
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
@@ -30,12 +38,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.text_update.connect(self.append_text)
         sys.stdout = self
 
-        self.default_masterUrl = "http://localhost:11311"
-        self.default_ip = "192.168.2.112"
-        self.default_hostname = "ubuntu"
-        self.lineEdit_rosmasterurl.setText(self.default_masterUrl)
-        self.lineEdit_rosip.setText(self.default_ip)
-        self.lineEdit_roshostname.setText(self.default_hostname)
+        self.client = None
+        self.my_ip = get_host_ip()
+        self.pi_ip = "192.168.2.184"
+        self.p_core = None
+        self.sm = Hetor_SLAM()
+        self.lineEdit_piip.setText(self.pi_ip)
 
         self.remote = RemoteInterface("/cmd_vel")
         self.camView = CamMap()
@@ -71,6 +79,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 cur.insertBlock()
         self.textBrowser.setTextCursor(cur)  # Update visible cursor
 
+    def print_log(self, data):
+        print(data)
+
     def mousePressEvent(self, event):
         if event.buttons() == Qt.LeftButton:
             real_x = event.x() - self.groupBox_2.x()
@@ -90,10 +101,104 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.sta_work_path = False
             event.accept()
 
+    def closeEvent(self, event):
+        self.cancel_car()
+
+    def connect_car(self):
+        if self.has_start_main is None:
+            self.client = Client()
+            self.pi_ip = self.lineEdit_piip.text()
+            self.client.connect(self.pi_ip, 15057)
+
+            self.client.send_msg("IP {}".format(self.pi_ip))
+            recv = self.client.recv_msg()
+            if recv != 'ok':
+                self.print_log("set pi ROS_IP: False")
+                return False
+            else:
+                self.print_log("set pi ROS_IP: {}".format(self.pi_ip))
+
+            self.client.send_msg("MASTER http://{}:11311/".format(self.my_ip))
+            recv = self.client.recv_msg()
+            if recv != 'ok':
+                self.print_log("set pi ROS_MASTER_URI: False")
+                return False
+            else:
+                self.print_log("set pi ROS_MASTER_URI: ...{}...".format(self.my_ip))
+
+            # os.environ["ROS_IP"] = self.my_ip
+            # self.print_log("set ubuntu ROS_IP: {}".format(self.my_ip))
+            # os.environ["ROS_MASTER_URI"] = "http://{}:11311/".format(self.my_ip)
+            # self.print_log("set ubuntu ROS_MASTER_URI: ...{}...".format(self.my_ip))
+
+            # self.p_core = subprocess.Popen("roscore", shell=True)
+            # time.sleep(10)
+
+            self.client.send_msg("start")
+            recv = self.client.recv_msg()
+            if recv != 'ok':
+                self.print_log("start pi driver False")
+                return False
+            else:
+                self.print_log("start pi driver")
+
+            rospy.init_node('my_gui')
+            rospy.on_shutdown(shutdown)
+            self.print_log("Read to Go!!!")
+
+            self.sm.config()
+            self.sm.start()
+            _thread.start_new_thread(self.thread_work, (1,))
+            _thread.start_new_thread(self.thread_remote, (1,))
+            _thread.start_new_thread(self.thread_flashGUI_info, (1,))
+            _thread.start_new_thread(self.thread_flashStatus, (1,))
+            self.has_start_main = True
+        else:
+            self.print_log('Has connected')
+
+    def cancel_car(self):
+        if self.client:
+            self.sm.stop()
+            self.client.send_msg("stop")
+            self.client.recv_msg()
+            self.client.send_msg("exit")
+            # self.p_core.kill()
+            self.client = None
+
     def pushButton_init(self):
         # def pushButton_():
         #     pass
         # self.pushButton_.clicked.connect(pushButton_)
+
+        def pushButton_connect():
+            self.connect_car()
+
+        def pushButton_cancel():
+            self.cancel_car()
+
+        def checkBox_remote():
+            sta = self.checkBox_remote.checkState()
+            if sta:
+                self.sta_remote = True
+            else:
+                self.sta_remote = False
+
+        def pushButton_aopt():
+            self.sta_work_aopt = True
+
+        def pushButton_bopt():
+            self.sta_work_bopt = True
+
+        def pushButton_move():
+            self.sta_work_move = True
+            self.sta_remote = False
+            self.checkBox_remote.setCheckState(False)
+
+        def spinBox_sta_radius():
+            val = self.spinBox_sta_radius.value()
+            self.mapView.view_robot_radius += (val - self.robot_radius)
+            self.robot_radius = val
+            self.mapView.clear_map()
 
         def pushButton_1():
             self.mapView.map.change_param(0, [-10, 0])
@@ -101,15 +206,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.mapView.map.image_transform()
             self.mapView.clear_map()
 
-        self.pushButton_1.clicked.connect(pushButton_1)
-
         def pushButton_2():
             self.mapView.map.change_param(0, [0, -10])
             self.mapView.pose.change_param(0, [0, -10])
             self.mapView.map.image_transform()
             self.mapView.clear_map()
-
-        self.pushButton_2.clicked.connect(pushButton_2)
 
         def pushButton_3():
             self.mapView.map.change_param(0, [0, 10])
@@ -117,15 +218,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.mapView.map.image_transform()
             self.mapView.clear_map()
 
-        self.pushButton_3.clicked.connect(pushButton_3)
-
         def pushButton_4():
             self.mapView.map.change_param(0, [10, 0])
             self.mapView.pose.change_param(0, [10, 0])
             self.mapView.map.image_transform()
             self.mapView.clear_map()
-
-        self.pushButton_4.clicked.connect(pushButton_4)
 
         def pushButton_5():
             self.mapView.map.change_param(1, [0, 0])
@@ -133,8 +230,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.mapView.view_robot_radius += 1
             self.mapView.map.image_transform()
             self.mapView.clear_map()
-
-        self.pushButton_5.clicked.connect(pushButton_5)
 
         def pushButton_6():
             self.mapView.map.change_param(-1, [0, 0])
@@ -144,61 +239,20 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.mapView.map.image_transform()
             self.mapView.clear_map()
 
-        self.pushButton_6.clicked.connect(pushButton_6)
-
-        def pushButton_connect():
-            if self.has_start_main is None:
-                Hetor_SLAM().start()
-                _thread.start_new_thread(self.thread_work, (1,))
-                _thread.start_new_thread(self.thread_remote, (1,))
-                _thread.start_new_thread(self.thread_flashGUI_info, (1,))
-                _thread.start_new_thread(self.thread_flashStatus, (1,))
-                self.has_start_main = True
-            else:
-                print('Has connected')
-
         self.pushButton_connect.clicked.connect(pushButton_connect)
-
-        def pushButton_cancel():
-            print('TODO')
-            pass
-
         self.pushButton_cancel.clicked.connect(pushButton_cancel)
-
-        def checkBox_remote():
-            sta = self.checkBox_remote.checkState()
-            if sta:
-                self.sta_remote = True
-            else:
-                self.sta_remote = False
-
         self.checkBox_remote.clicked.connect(checkBox_remote)
-
-        def pushButton_aopt():
-            self.sta_work_aopt = True
-
         self.pushButton_aopt.clicked.connect(pushButton_aopt)
-
-        def pushButton_bopt():
-            self.sta_work_bopt = True
-
         self.pushButton_bopt.clicked.connect(pushButton_bopt)
-
-        def pushButton_move():
-            self.sta_work_move = True
-            self.sta_remote = False
-            self.checkBox_remote.setCheckState(False)
-
         self.pushButton_move.clicked.connect(pushButton_move)
-
-        def spinBox_sta_radius():
-            val = self.spinBox_sta_radius.value()
-            self.mapView.view_robot_radius += (val - self.robot_radius)
-            self.robot_radius = val
-            self.mapView.clear_map()
-
         self.spinBox_sta_radius.setValue(5)
         self.spinBox_sta_radius.valueChanged.connect(spinBox_sta_radius)
+        self.pushButton_1.clicked.connect(pushButton_1)
+        self.pushButton_2.clicked.connect(pushButton_2)
+        self.pushButton_3.clicked.connect(pushButton_3)
+        self.pushButton_4.clicked.connect(pushButton_4)
+        self.pushButton_5.clicked.connect(pushButton_5)
+        self.pushButton_6.clicked.connect(pushButton_6)
 
     def thread_work(self, haha=1):
         rate = rospy.Rate(50)  # 50ms
@@ -256,7 +310,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.mapView.update()
             rate.sleep()
 
-    def thread_flashGUI_display(self):
+    def thread_flashGUI_display(self, haha=1):
         def convertFrame(frame):
             height, width = frame.shape[:2]
             frame = QImage(frame, width, height, QImage.Format_RGB888)
@@ -277,9 +331,6 @@ def shutdown():
 
 
 def main():
-    rospy.init_node('my_gui')
-    rospy.on_shutdown(shutdown)
-
     app = QApplication(sys.argv)
     main_window = MyMainWindow()
     main_window.show()

@@ -6,6 +6,10 @@
 ![](./picture/localnetwork.png)
 
 ![](./picture/hard.png)
+## 0. Debug
+python3 /home/pi/ros/mecanum_agv/src/my_driver/scripts/ros_config.py
+roscore
+/home/hhc/anaconda3/envs/py39/bin/python /home/hhc/Desktop/ros/mecanum_agv/src/my_gui/scripts/main.py
 ## 1. env
 - ubuntu18.04
 - ROS-melodic
@@ -42,7 +46,7 @@ ACTION=="add",KERNELS=="1-1.2.1",SUBSYSTEMS=="usb",MODE:="0777",SYMLINK+="ttyUSB
 ```
 sudo apt-get install ros-melodic-usb-cam
 sudo apt install ros-melodic-image-transport-plugins
-pip install pyserial
+pip install pyserial rospkg defusedxml
 ```
 ### 4.3. start
 `roslaunch my_driver start.launch`

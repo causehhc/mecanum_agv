@@ -4,8 +4,10 @@ from multiprocessing import Process
 
 import cv2
 import numpy as np
+import rospy
 
 from algorithm.plan.Bezier import Bezier
+import subprocess
 
 
 def test1():
@@ -27,6 +29,7 @@ def test1():
         cv2.imshow('frame', sb)
         cv2.waitKey(1)
 
+
 def test2():
     a = [[0, 1, -1, 0, 1, -1],
          [1, -1, 0, 0, 1, -1],
@@ -44,6 +47,7 @@ def test2():
     print('sb')
     print(b.T)
 
+
 def test3(pixel_distance_param, row_center, col_center, display_center_point):
     x = 300
     y = 300
@@ -56,9 +60,16 @@ def test3(pixel_distance_param, row_center, col_center, display_center_point):
     return int(x), int(y)
 
 
+def test4():
+    p = subprocess.Popen("roscore", shell=True)
+    rospy.get_master().getPid()
+    print('!!ok!!')
+    time.sleep(5)
+    p.kill()
+
+
 def main():
-    print(test3(20, 10, 10, 300))
-    print(test3(20, 11, 10, 300))
+    test4()
 
 
 if __name__ == '__main__':

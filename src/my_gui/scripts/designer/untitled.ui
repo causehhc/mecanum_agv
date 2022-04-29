@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>934</width>
+    <width>914</width>
     <height>1021</height>
    </rect>
   </property>
@@ -116,41 +116,17 @@
          <item>
           <widget class="QGroupBox" name="groupBox_10">
            <property name="title">
-            <string>ROS_MASTER_URL</string>
+            <string>PI_IP</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
-             <widget class="QLineEdit" name="lineEdit_rosmasterurl"/>
+             <widget class="QLineEdit" name="lineEdit_piip"/>
             </item>
            </layout>
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_11">
-           <property name="title">
-            <string>ROS_IP</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <item>
-             <widget class="QLineEdit" name="lineEdit_rosip"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_12">
-           <property name="title">
-            <string>ROS_Hostname</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_10">
-            <item>
-             <widget class="QLineEdit" name="lineEdit_roshostname"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
             <widget class="QPushButton" name="pushButton_connect">
              <property name="text">
@@ -361,7 +337,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>934</width>
+     <width>914</width>
      <height>23</height>
     </rect>
    </property>
