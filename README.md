@@ -21,6 +21,10 @@ git clone https://github.com/causehhc/mecanum_agv.git
 cd mecanum_agv
 catkin_make
 source ./devel/setup.bash
+export ROS_IP=192.168.2.135
+export ROS_MASTER_URI=http://192.168.2.135:11311/
+if vm: export SVGA_VGPU10=0
+if error *api.ignitionfuel.org*: edit `~/.ignition/fuel/config.yaml`: https://api.ignitionfuel.org->https://api.ignitionrobotics.org
 ```
 ## 3. Start simulation
 ### 3.1. Install something
