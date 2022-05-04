@@ -7,3 +7,4 @@
 /bishe_stm32/cmake-build-debug
 **/.idea/
 **/__pycache__/
+/paper/.vscode/
